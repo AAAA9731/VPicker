@@ -10,7 +10,7 @@ import { dirname, extname, join, normalize, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getAsset, isSea } from 'node:sea'
 
-const APP = 'VPicker 立绘 VP 选择器'
+const APP = 'VPicker PXL 图像提取工具'
 const START_PORT = 5173
 const IDLE_EXIT_MS = 5000 // 最后一个页面断开后，等待多久退出（刷新页面不会误杀）
 const NEVER_OPENED_MS = 120000 // 启动后一直没有页面连接则退出

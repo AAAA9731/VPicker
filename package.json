@@ -23,5 +23,5 @@
     "texture2ddecoder-wasm": "^1.2.5"
   },
   "license": "MIT",
-  "description": "游戏 F7 vp 立绘差分选择器的浏览器版"
+  "description": "提取游戏中所有 PXL 图像（立绘、事件 CG、UI、敌人等）的浏览器工具"
 }
