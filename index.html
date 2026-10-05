@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VPicker</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <header>
+    <h1>VPicker <small>立绘 VP 选择器</small></h1>
+    <button id="pick" type="button">选择文件夹…</button>
+    <input id="pick-fallback" type="file" webkitdirectory multiple hidden />
+    <progress id="progress" max="1" value="0" hidden></progress>
+  <span id="status">请选择游戏的 StreamingAssets 文件夹（或其中的 EvImg 文件夹），也可以把文件夹拖到页面上。</span>
+  </header>
+
+  <nav id="tabs" aria-label="角色"></nav>
+
+  <main id="stage" hidden>
+    <section class="col" id="poses-col">
+      <h2>姿势</h2>
+      <div id="poses" class="grid"></div>
+    </section>
+
+    <section class="col" id="center">
+      <div id="preview-wrap"><canvas id="preview"></canvas></div>
+      <div id="cmd-row">
+        <input id="cmd" type="text" spellcheck="false" placeholder="PIC n a_3/a2__F1__f3__m1__b1_uo" />
+        <label class="flag"><input id="flag-n" type="checkbox" /> N</label>
+        <button id="copy" type="button">复制</button>
+      </div>
+      <div id="img-row">
+        <button id="copy-img" type="button">复制图片</button>
+        <button id="save-img" type="button">保存图片</button>
+        <label class="flag">背景
+          <select id="img-bg-mode">
+            <option value="none">透明</option>
+            <option value="solid">纯色</option>
+          </select>
+        </label>
+        <input id="img-bg-color" type="color" value="#ffffff" title="背景颜色" />
+      </div>
+      <div id="cmd-msg"></div>
+      <details id="batch">
+        <summary>批处理</summary>
+        <div id="batch-bar">
+          <label><input type="radio" name="batch-mode" value="emotion" checked /> 当前表情 × 所有姿势</label>
+          <label><input type="radio" name="batch-mode" value="pose" /> 当前姿势 × 所有表情</label>
+        </div>
+        <div id="batch-actions">
+          <span id="batch-count"></span>
+          <button id="batch-copy" type="button">复制全部指令</button>
+          <button id="batch-zip" type="button">下载全部图片 (ZIP)</button>
+        </div>
+        <div id="batch-list" class="grid"></div>
+      </details>
+      <details id="cmdfile">
+        <summary>从 cmd 文件里挑 PIC 行</summary>
+        <input id="cmdfile-input" type="file" accept=".cmd,.txt" />
+        <div id="cmdfile-list"></div>
+      </details>
+    </section>
+
+    <section class="col" id="emots-col">
+      <h2>表情</h2>
+      <div id="emots" class="grid"></div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

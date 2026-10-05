@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+release/
+# 由 scripts/copy-wasm.mjs 从 node_modules 复制，不进版本库
+public/wasm/
+*.log
+.DS_Store

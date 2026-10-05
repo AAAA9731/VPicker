@@ -1,0 +1,25 @@
+{
+  "name": "vpicker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "predev": "node scripts/copy-wasm.mjs",
+    "prebuild": "node scripts/copy-wasm.mjs",
+    "postinstall": "node scripts/copy-wasm.mjs",
+    "build:exe": "node scripts/build-exe.mjs",
+    "start": "node server/main.js"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.0.10",
+    "postject": "^1.0.0-alpha.6",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "texture2ddecoder-wasm": "^1.2.5"
+  }
+}
