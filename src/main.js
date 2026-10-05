@@ -35,7 +35,8 @@ const el = {
   cmdfileInput: $('cmdfile-input'),
   cmdfileList: $('cmdfile-list'),
 }
-const wasmPath = import.meta.env.BASE_URL + 'wasm'
+// texture2ddecoder 只会把以 / 开头的路径按页面地址解析；相对路径（如 ./wasm）会被当成相对于脚本块，在打包产物里找不到文件
+const wasmPath = new URL(import.meta.env.BASE_URL + 'wasm', document.baseURI).pathname
 let gf = new GameFiles()
 const loaded = new Map()
 const loading = new Map()
