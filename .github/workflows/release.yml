@@ -1,6 +1,6 @@
 name: Release
 
-# 推送形如 v1.0.0 的标签时，自动构建 exe 并发布到 GitHub Releases
+# 推送形如 v1.0.0 的标签时，在 Windows 和 macOS 上分别构建，并把产物发布到 GitHub Releases
 on:
   push:
     tags: ['v*']
@@ -9,21 +9,43 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        include:
+          - name: windows-x64
+            os: windows-latest
+            artifact: release/VPicker.exe
+          - name: macos-arm64
+            os: macos-latest
+            artifact: release/VPicker-macos-arm64.zip
+          - name: macos-x64
+            os: macos-15-intel
+            artifact: release/VPicker-macos-x64.zip
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-
       - run: npm ci
       - run: npm test
       - run: npm run build:exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VPicker-${{ matrix.name }}
+          path: ${{ matrix.artifact }}
 
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist-all
+          merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
-          files: release/VPicker.exe
+          files: dist-all/*
           generate_release_notes: true

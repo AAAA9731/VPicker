@@ -340,13 +340,13 @@ function exportBlob() {
   return renderBlob(lp, curPose, curEmotion)
 }
 el.copyImg.addEventListener('click', async () => {
-  const blob = await exportBlob()
-  if (!blob) {
+  if (!loaded.get(curKey) || !curPose) {
     setMsg('还没有可导出的立绘', true)
     return
   }
   try {
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+    // 把 Promise 直接交给 ClipboardItem：Safari 要求在点击的同步阶段就写入剪贴板，不能先 await 再写
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': exportBlob() })])
     setMsg('图片已复制到剪贴板')
   } catch (e) {
     setMsg('复制图片失败（需要 https 或 localhost，且浏览器允许剪贴板）：' + e.message, true)

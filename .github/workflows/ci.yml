@@ -7,7 +7,24 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x64
+            os: windows-latest
+            bin: release/VPicker.exe
+            artifact: release/VPicker.exe
+          - name: macos-arm64
+            os: macos-latest
+            bin: release/VPicker
+            artifact: release/VPicker-macos-arm64.zip
+          - name: macos-x64
+            os: macos-15-intel
+            bin: release/VPicker
+            artifact: release/VPicker-macos-x64.zip
+    name: build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,13 +41,14 @@ jobs:
       - name: 构建网页
         run: npm run build
 
-      - name: 打包 exe
+      - name: 打包可执行文件
         run: npm run build:exe
 
-      - name: exe 冒烟测试
+      - name: 冒烟测试（Windows）
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $p = Start-Process -FilePath release/VPicker.exe -ArgumentList '--no-open','--port=5199' -PassThru -RedirectStandardOutput exe.log
+          $p = Start-Process -FilePath ${{ matrix.bin }} -ArgumentList '--no-open','--port=5199' -PassThru -RedirectStandardOutput exe.log
           try {
             $ok = $false
             foreach ($i in 1..20) {
@@ -43,14 +61,30 @@ jobs:
             if (-not $ok) { throw '网页没有正常返回' }
             $w = Invoke-WebRequest -UseBasicParsing http://localhost:5199/wasm/texture2ddecoder.wasm
             if ($w.StatusCode -ne 200) { throw 'wasm 资源缺失' }
-            Write-Host 'exe 冒烟测试通过'
+            Write-Host '冒烟测试通过'
           } finally {
             Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
             Get-Content exe.log -ErrorAction SilentlyContinue
           }
 
+      - name: 冒烟测试（macOS）
+        if: runner.os == 'macOS'
+        run: |
+          ./${{ matrix.bin }} --no-open --port=5199 > exe.log 2>&1 &
+          PID=$!
+          ok=0
+          for i in $(seq 1 20); do
+            sleep 0.5
+            if curl -fs http://localhost:5199/ | grep -q VPicker; then ok=1; break; fi
+          done
+          curl -fs -o /dev/null http://localhost:5199/wasm/texture2ddecoder.wasm || ok=0
+          kill $PID 2>/dev/null || true
+          cat exe.log
+          [ "$ok" = 1 ] || { echo '网页没有正常返回'; exit 1; }
+          echo '冒烟测试通过'
+
       - uses: actions/upload-artifact@v4
         with:
-          name: VPicker-windows
-          path: release/VPicker.exe
+          name: VPicker-${{ matrix.name }}
+          path: ${{ matrix.artifact }}
           retention-days: 14

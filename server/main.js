@@ -147,7 +147,8 @@ function listen(port, tries = 0) {
     console.log(`  关闭浏览器标签页后，本窗口会自动退出（也可以按 Ctrl+C）。\n`)
     log('服务', `已启动，端口 ${server.address().port}`, C.green)
     if (!noOpen) {
-      exec(`start "" "${url}"`, (err) => {
+      const opener = process.platform === 'win32' ? 'start ""' : process.platform === 'darwin' ? 'open' : 'xdg-open'
+      exec(`${opener} "${url}"`, (err) => {
         if (err) log('提示', `没能自动打开浏览器，请手动访问 ${url}`, C.yellow)
         else log('浏览器', '已打开，请在页面里选择游戏的 StreamingAssets 文件夹')
       })

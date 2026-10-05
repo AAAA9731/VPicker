@@ -11,6 +11,9 @@
 
 **exe（推荐）**：从 [Releases](../../releases) 下载 `VPicker.exe`，双击运行。它会打开浏览器页面，关闭标签页后自动退出。
 
+**macOS**：下载对应芯片的 `VPicker-macos-arm64.zip`（Apple 芯片）或 `VPicker-macos-x64.zip`（Intel），解压后在终端运行 `./VPicker`。
+程序未做 Apple 开发者签名，首次运行若被系统拦截，执行 `xattr -dr com.apple.quarantine VPicker` 后再运行。
+
 **从源码运行**：
 
 ```
@@ -25,10 +28,11 @@ npm run dev
 ```
 npm test           # 依赖游戏数据的测试需设置环境变量 SA_DIR（StreamingAssets 路径），否则自动跳过
 npm run build      # 网页
-npm run build:exe  # 单文件 exe，输出到 release/
+npm run build:exe  # 单文件可执行程序（Windows 为 exe，macOS 为 zip），输出到 release/
 ```
 
-推送到 main 会触发 GitHub Actions（测试、构建、exe 冒烟测试）；推送 `v*` 标签会自动发布 exe 到 Releases。
+推送到 main 会触发 GitHub Actions，在 Windows、macOS（arm64 / x64）上分别测试、构建并做启动冒烟测试；推送 `v*` 标签会自动发布三个平台的程序到 Releases。
+页面本身在 Chrome / Edge / Safari 等现代浏览器中都能用（Safari 没有目录选择对话框，会改用普通的文件夹选择框）。
 
 ## 许可证与声明
 
