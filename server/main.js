@@ -108,7 +108,7 @@ async function applyUpdate() {
     rmSync(tmp, { force: true })
     throw new Error('下载的文件不完整')
   }
-  rmSync(exe + '.old', { force: true })
+  removeOld()
   renameSync(exe, exe + '.old') // Windows 允许重命名正在运行的 exe
   try {
     renameSync(tmp, exe)
@@ -123,7 +123,16 @@ function restartSelf() {
   child.unref()
   shutdown('更新完成，已启动新版本')
 }
-if (canSelfUpdate) rmSync(process.execPath + '.old', { force: true }) // 清理上次更新留下的旧文件
+// 清理上次更新留下的旧文件；旧进程可能还没退出（文件被占用），失败就留给下次
+function removeOld() {
+  try {
+    rmSync(process.execPath + '.old', { force: true })
+  } catch {}
+}
+if (canSelfUpdate) {
+  removeOld()
+  setTimeout(removeOld, 8000)
+}
 
 // 与 src/loader.js 的 WANTED / SKIP_DIR 保持一致
 const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
