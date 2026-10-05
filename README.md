@@ -6,6 +6,7 @@
 - 粘贴 `PIC` 指令，自动切换到对应的姿势和表情
 - 复制 / 保存 PNG（透明或自选背景色）
 - 批处理：某个表情 × 所有姿势、某个姿势 × 所有表情，可复制全部指令或导出 ZIP
+- 「非立绘图片」标签页：浏览并导出事件 CG、UI、小游戏素材等其他 PXL 图片包（不含 PIC 指令和表情）
 
 ## 使用
 
@@ -20,6 +21,8 @@
 npm install
 npm run dev
 ```
+
+exe 也可以直接带路径启动：`VPicker.exe --dir=D:\Game\AliceInCradle_Data\StreamingAssets`（或把文件夹拖到 exe 上）。页面里也能在「加载路径」框里填写路径。成功加载过的路径会被记住（Windows 在 `%APPDATA%\VPicker\config.json`），下次不带参数启动时自动填入并加载。
 
 打开页面后点「选择文件夹…」，选择游戏的 `StreamingAssets`（或其中的 `EvImg`）文件夹。文件只在本地读取，不会上传。
 

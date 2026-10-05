@@ -18,6 +18,35 @@ export function collectByPose(pose) {
   return (pose.emotions ?? []).map((e) => ({ pose, emotion: e.key }))
 }
 
+const RegFrame = /^(.*\/a)(\d+)$/
+
+/**
+ * 非立绘图片：取包含当前姿势的“连续序号序列”（如 walk/a0、walk/a1、walk/a2…，通常是帧动画）。
+ * 序号必须连续；当前图不是 `名字/aN` 形式时只返回它自己。
+ */
+export function collectFrameRun(person, pose) {
+  const m = RegFrame.exec(pose.name)
+  if (!m) return [{ pose, emotion: null }]
+  const byIdx = new Map()
+  for (const p of person.poses) {
+    const q = RegFrame.exec(p.name)
+    if (q && q[1] === m[1] && !byIdx.has(+q[2])) byIdx.set(+q[2], p)
+  }
+  const i = +m[2]
+  let lo = i
+  let hi = i
+  while (byIdx.has(lo - 1)) lo--
+  while (byIdx.has(hi + 1)) hi++
+  const out = []
+  for (let k = lo; k <= hi; k++) out.push({ pose: byIdx.get(k), emotion: null })
+  return out
+}
+
+/** 非立绘图片：整个图片包里的全部图。 */
+export function collectAllPoses(person) {
+  return person.poses.map((pose) => ({ pose, emotion: null }))
+}
+
 // ───────────── 最小 ZIP 写入（仅存储，不压缩；PNG 本身已压缩） ─────────────
 let crcTable = null
 function crc32(data) {

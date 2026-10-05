@@ -1,9 +1,12 @@
 // 本地服务器：提供打包好的网页，在命令行里反馈状态，所有页面都关闭后自动退出。
 // 打包成 exe 时静态文件从 SEA 资源里读取；直接 `node server/main.js` 时读取 dist/。
 import http from 'node:http'
-import { exec, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
-import { dirname, extname, join, normalize } from 'node:path'
+import { exec, spawn, spawnSync } from 'node:child_process'
+import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
+import { homedir } from 'node:os'
+import { dirname, extname, join, normalize, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getAsset, isSea } from 'node:sea'
 
@@ -14,8 +17,134 @@ const NEVER_OPENED_MS = 120000 // 启动后一直没有页面连接则退出
 
 const args = process.argv.slice(2)
 const noOpen = args.includes('--no-open')
+const isRestart = args.includes('--restart') // 更新后由旧进程拉起：旧进程还没释放端口时，原端口重试而不是换端口
 const portArg = args.find((a) => a.startsWith('--port='))
 const wantPort = portArg ? Number(portArg.slice(7)) : START_PORT
+
+// 游戏目录：命令行 `--dir=路径`（或直接把文件夹拖到 exe 上 / 第一个不带 -- 的参数）；没有的话用上次成功打开的路径
+const cliDir = args.find((a) => a.startsWith('--dir='))?.slice(6) ?? args.find((a) => !a.startsWith('--'))
+const configPath =
+  process.platform === 'win32'
+    ? join(process.env.APPDATA ?? join(homedir(), 'AppData', 'Roaming'), 'VPicker', 'config.json')
+    : process.platform === 'darwin'
+      ? join(homedir(), 'Library', 'Application Support', 'VPicker', 'config.json')
+      : join(process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'), 'VPicker', 'config.json')
+function loadConfig() {
+  try {
+    return JSON.parse(readFileSync(configPath, 'utf8'))
+  } catch {
+    return {}
+  }
+}
+function saveConfig(cfg) {
+  try {
+    mkdirSync(dirname(configPath), { recursive: true })
+    writeFileSync(configPath, JSON.stringify(cfg, null, 2))
+  } catch (e) {
+    log('提示', '没能保存上次的路径：' + e.message, C.yellow)
+  }
+}
+
+// ───────────── 自动更新（检查 GitHub Releases） ─────────────
+const REPO = 'AAAA9731/VPicker'
+const APP_VERSION =
+  typeof __APP_VERSION__ !== 'undefined'
+    ? __APP_VERSION__
+    : (() => {
+        try {
+          return JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8')).version
+        } catch {
+          return '0.0.0'
+        }
+      })()
+const verParts = (v) => String(v).replace(/^v/i, '').split('-')[0].split('.').map((n) => parseInt(n, 10) || 0)
+function isNewer(a, b) {
+  const x = verParts(a)
+  const y = verParts(b)
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    if ((x[i] ?? 0) !== (y[i] ?? 0)) return (x[i] ?? 0) > (y[i] ?? 0)
+  }
+  return false
+}
+const assetName = process.platform === 'win32' ? 'VPicker.exe' : process.platform === 'darwin' ? `VPicker-macos-${process.arch}.zip` : null
+// 只有打包后的 Windows exe 才能原地替换自己；其他情况只提示并给出下载页
+const canSelfUpdate = isSea() && process.platform === 'win32'
+let updateCache = null
+async function checkUpdate() {
+  if (updateCache && Date.now() - updateCache.at < 3600_000) return updateCache.info
+  const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+    headers: { accept: 'application/vnd.github+json', 'user-agent': 'VPicker-updater' },
+    signal: AbortSignal.timeout(8000),
+  })
+  if (!r.ok) throw new Error('GitHub 返回 ' + r.status)
+  const j = await r.json()
+  const asset = (j.assets ?? []).find((a) => a.name === assetName)
+  const latest = String(j.tag_name ?? '').replace(/^v/i, '')
+  const info = {
+    current: APP_VERSION,
+    latest,
+    newer: isNewer(j.tag_name ?? '0', APP_VERSION),
+    notes: String(j.body ?? '').slice(0, 1500),
+    url: j.html_url,
+    canSelfUpdate: canSelfUpdate && !!asset,
+    assetUrl: asset?.browser_download_url ?? null,
+    ignored: loadConfig().ignoredVersion === latest,
+  }
+  updateCache = { at: Date.now(), info }
+  return info
+}
+async function applyUpdate() {
+  const info = await checkUpdate()
+  if (!info.newer || !info.canSelfUpdate) throw new Error('当前没有可自动安装的更新')
+  const u = new URL(info.assetUrl)
+  if (u.protocol !== 'https:' || u.hostname !== 'github.com' || !u.pathname.startsWith(`/${REPO}/releases/download/`)) throw new Error('下载地址不可信')
+  const exe = process.execPath
+  const tmp = exe + '.new'
+  log('更新', `正在下载 ${info.latest} …`, C.cyan)
+  const r = await fetch(info.assetUrl, { redirect: 'follow', headers: { 'user-agent': 'VPicker-updater' } })
+  if (!r.ok || !r.body) throw new Error('下载失败：' + r.status)
+  await pipeline(Readable.fromWeb(r.body), createWriteStream(tmp))
+  if (statSync(tmp).size < 1024 * 1024) {
+    rmSync(tmp, { force: true })
+    throw new Error('下载的文件不完整')
+  }
+  rmSync(exe + '.old', { force: true })
+  renameSync(exe, exe + '.old') // Windows 允许重命名正在运行的 exe
+  try {
+    renameSync(tmp, exe)
+  } catch (e) {
+    renameSync(exe + '.old', exe)
+    throw e
+  }
+  log('更新', `已更新到 ${info.latest}，正在重启…`, C.green)
+}
+function restartSelf() {
+  const child = spawn(process.execPath, ['--no-open', '--restart', `--port=${server.address().port}`], { detached: true, stdio: 'ignore' })
+  child.unref()
+  shutdown('更新完成，已启动新版本')
+}
+if (canSelfUpdate) rmSync(process.execPath + '.old', { force: true }) // 清理上次更新留下的旧文件
+
+// 与 src/loader.js 的 WANTED / SKIP_DIR 保持一致
+const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
+const SKIP_DIR = new Set(['Managed', 'MonoBleedingEdge', 'BepInEx', 'Resources', 'Plugins', 'Il2CppData'])
+/** 当前选定目录里的文件索引：文件名 → 完整路径 */
+let gameIndex = new Map()
+function scanDir(dir, out = new Map(), depth = 0) {
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name)
+    let st
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
+    if (st.isDirectory()) {
+      if (depth < 8 && !SKIP_DIR.has(name)) scanDir(p, out, depth + 1)
+    } else if (WANTED.test(name)) out.set(name, p)
+  }
+  return out
+}
 
 if (process.platform === 'win32') {
   // 命令行窗口默认是 GBK 代码页，切到 UTF-8 才能正确显示中文
@@ -73,8 +202,69 @@ function onClientsChanged() {
   }
 }
 
+const sendJson = (res, code, obj) => {
+  res.writeHead(code, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
+  res.end(JSON.stringify(obj))
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://localhost')
+  if (url.pathname === '/__config' || url.pathname.startsWith('/__dir/') || url.pathname.startsWith('/__update/')) {
+    // 这些接口会读本机文件，只允许本页面自己（同源）访问
+    const origin = req.headers.origin
+    if (origin && new URL(origin).host !== req.headers.host) return void res.writeHead(403).end()
+  }
+  if (url.pathname === '/__config') {
+    return sendJson(res, 200, { dir: cliDir ?? loadConfig().dir ?? '', fromCli: !!cliDir, version: APP_VERSION })
+  }
+  if (url.pathname === '/__update/check') {
+    checkUpdate().then(
+      ({ assetUrl, ...info }) => sendJson(res, 200, info),
+      (e) => sendJson(res, 200, { error: e.message })
+    )
+    return
+  }
+  if (url.pathname === '/__update/ignore' && req.method === 'POST') {
+    saveConfig({ ...loadConfig(), ignoredVersion: url.searchParams.get('v') ?? '' })
+    return void res.writeHead(204).end()
+  }
+  if (url.pathname === '/__update/apply' && req.method === 'POST') {
+    applyUpdate().then(
+      () => {
+        sendJson(res, 200, { ok: true })
+        res.on('finish', () => setTimeout(restartSelf, 300))
+      },
+      (e) => {
+        log('更新', '失败：' + e.message, C.red)
+        sendJson(res, 500, { error: e.message })
+      }
+    )
+    return
+  }
+  if (url.pathname === '/__dir/list') {
+    const dir = resolve(url.searchParams.get('dir') ?? '')
+    let names
+    try {
+      if (!statSync(dir).isDirectory()) throw new Error('不是文件夹')
+      const idx = scanDir(dir)
+      names = [...idx.keys()]
+      if (names.length) {
+        gameIndex = idx
+        saveConfig({ ...loadConfig(), dir })
+        log('目录', `${dir}（${names.length} 个相关文件）`, C.green)
+      }
+    } catch (e) {
+      log('目录', `无法读取 ${dir}：${e.code === 'ENOENT' ? '路径不存在' : e.message}`, C.red)
+      return sendJson(res, 404, { error: `无法读取 ${dir}：${e.code === 'ENOENT' ? '路径不存在' : e.message}` })
+    }
+    return sendJson(res, 200, { dir, names })
+  }
+  if (url.pathname.startsWith('/__dir/file/')) {
+    const p = gameIndex.get(decodeURIComponent(url.pathname.slice('/__dir/file/'.length)))
+    if (!p) return void res.writeHead(404).end()
+    res.writeHead(200, { 'content-type': 'application/octet-stream', 'cache-control': 'no-store' })
+    return void createReadStream(p).pipe(res)
+  }
   if (url.pathname === '/__events') {
     res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache', connection: 'keep-alive' })
     res.write(':ok\n\n')
@@ -134,7 +324,8 @@ process.on('SIGTERM', () => shutdown('收到终止信号'))
 
 function listen(port, tries = 0) {
   server.once('error', (e) => {
-    if (e.code === 'EADDRINUSE' && tries < 30) listen(port + 1, tries + 1)
+    if (e.code === 'EADDRINUSE' && isRestart && tries < 20) setTimeout(() => listen(port, tries + 1), 500)
+    else if (e.code === 'EADDRINUSE' && tries < 30) listen(port + 1, tries + 1)
     else {
       log('错误', '无法启动服务器：' + e.message, C.red)
       setTimeout(() => process.exit(1), 3000)
@@ -145,12 +336,12 @@ function listen(port, tries = 0) {
     console.log(`\n  ${C.cyan}${APP}${C.off}`)
     console.log(`  地址：${C.green}${url}${C.off}`)
     console.log(`  关闭浏览器标签页后，本窗口会自动退出（也可以按 Ctrl+C）。\n`)
-    log('服务', `已启动，端口 ${server.address().port}`, C.green)
-    if (!noOpen) {
+    log('服务', `已启动 v${APP_VERSION}，端口 ${server.address().port}`, C.green)
+    if (!noOpen && !isRestart) {
       const opener = process.platform === 'win32' ? 'start ""' : process.platform === 'darwin' ? 'open' : 'xdg-open'
       exec(`${opener} "${url}"`, (err) => {
         if (err) log('提示', `没能自动打开浏览器，请手动访问 ${url}`, C.yellow)
-        else log('浏览器', '已打开，请在页面里选择游戏的 StreamingAssets 文件夹')
+        else log('浏览器', '已打开，请在页面里选择游戏的 StreamingAssets 文件夹（或填写路径）')
       })
     }
     setTimeout(() => {

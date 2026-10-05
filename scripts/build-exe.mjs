@@ -1,7 +1,7 @@
 // 打包成单文件可执行程序：vite 构建网页 → esbuild 打包服务器 → Node SEA 把网页资源一起注入 node 可执行文件的副本。
 // 支持 Windows 和 macOS（在对应系统上运行即可生成对应版本）。
 import { execFileSync } from 'node:child_process'
-import { copyFileSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { build } from 'esbuild'
 
@@ -25,7 +25,10 @@ await build({
   target: 'node24',
   outfile: 'build/server.cjs',
   external: ['node:sea'],
-  define: { 'import.meta.url': '__import_meta_url' },
+  define: {
+    'import.meta.url': '__import_meta_url',
+    __APP_VERSION__: JSON.stringify(JSON.parse(readFileSync('package.json', 'utf8')).version),
+  },
   banner: { js: 'const __import_meta_url = require("node:url").pathToFileURL(__filename).href;' },
 })
 

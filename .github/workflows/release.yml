@@ -30,6 +30,9 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # 版本号以标签为准，exe 靠它判断有没有新版本
+      - run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
+        shell: bash
       - run: npm test
       - run: npm run build:exe
       - uses: actions/upload-artifact@v4

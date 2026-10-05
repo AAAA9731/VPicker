@@ -11,9 +11,18 @@
     <h1>VPicker <small>立绘 VP 选择器</small></h1>
     <button id="pick" type="button">选择文件夹…</button>
     <input id="pick-fallback" type="file" webkitdirectory multiple hidden />
+    <span id="dir-row" hidden>
+      <input id="dir-input" type="text" spellcheck="false" placeholder="或填写 StreamingAssets 路径" title="游戏数据文件夹路径；加载成功后下次启动会自动填入" />
+      <button id="dir-load" type="button">加载路径</button>
+    </span>
     <progress id="progress" max="1" value="0" hidden></progress>
   <span id="status">请选择游戏的 StreamingAssets 文件夹（或其中的 EvImg 文件夹），也可以把文件夹拖到页面上。</span>
   </header>
+
+  <nav id="modes" aria-label="内容类型" hidden>
+    <button id="mode-person" type="button" class="mode" data-mode="person">立绘</button>
+    <button id="mode-other" type="button" class="mode" data-mode="other">非立绘图片</button>
+  </nav>
 
   <nav id="tabs" aria-label="角色"></nav>
 
@@ -24,7 +33,7 @@
     </section>
 
     <section class="col" id="center">
-      <div id="preview-wrap"><canvas id="preview"></canvas></div>
+      <div id="preview-wrap"><canvas id="preview"></canvas><span id="zoom-hint" title="滚轮缩放，拖动平移，双击复位"></span></div>
       <div id="cmd-row">
         <input id="cmd" type="text" spellcheck="false" placeholder="PIC n a_3/a2__F1__f3__m1__b1_uo" />
         <label class="flag"><input id="flag-n" type="checkbox" /> N</label>
@@ -45,12 +54,15 @@
       <details id="batch">
         <summary>批处理</summary>
         <div id="batch-bar">
-          <label><input type="radio" name="batch-mode" value="emotion" checked /> 当前表情 × 所有姿势</label>
-          <label><input type="radio" name="batch-mode" value="pose" /> 当前姿势 × 所有表情</label>
+          <label class="only-person"><input type="radio" name="batch-mode" value="emotion" checked /> 当前表情 × 所有姿势</label>
+          <label class="only-person"><input type="radio" name="batch-mode" value="pose" /> 当前姿势 × 所有表情</label>
+          <label class="only-other"><input type="radio" name="batch-mode" value="run" /> 当前连续序列（帧动画）</label>
+          <label class="only-other"><input type="radio" name="batch-mode" value="all" /> 整个图片包</label>
+          <label class="only-other"><input type="radio" name="batch-mode" value="sel" /> 已选 <span id="sel-count">0</span> 张（Ctrl+点击多选）</label>
         </div>
         <div id="batch-actions">
           <span id="batch-count"></span>
-          <button id="batch-copy" type="button">复制全部指令</button>
+          <button id="batch-copy" class="only-person" type="button">复制全部指令</button>
           <button id="batch-zip" type="button">下载全部图片 (ZIP)</button>
         </div>
         <div id="batch-list" class="grid"></div>
@@ -67,6 +79,19 @@
       <div id="emots" class="grid"></div>
     </section>
   </main>
+
+  <dialog id="update-dialog">
+    <h3>发现新版本 <span id="update-ver"></span></h3>
+    <p id="update-sub"></p>
+    <pre id="update-notes"></pre>
+    <p id="update-msg"></p>
+    <div class="dlg-actions">
+      <button id="update-apply" type="button">立即更新</button>
+      <a id="update-page" href="#" target="_blank" rel="noopener"><button type="button">前往下载页</button></a>
+      <button id="update-later" type="button">稍后</button>
+      <button id="update-ignore" type="button">忽略此版本</button>
+    </div>
+  </dialog>
 
   <script type="module" src="/src/main.js"></script>
 </body>

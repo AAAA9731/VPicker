@@ -2,14 +2,18 @@ import { GameFiles, loadPerson } from './loader'
 import { getEmotInfo } from './pxl/person'
 import { buildPic, locatePic, parsePicLine } from './pic'
 import { drawFaceThumb, drawPose } from './render'
-import { collectByEmotion, collectByPose, makeZip, safeFileName } from './batch'
+import { collectAllPoses, collectByEmotion, collectByPose, collectFrameRun, makeZip, safeFileName } from './batch'
 const $ = (id) => document.getElementById(id)
 const el = {
   pick: $('pick'),
+  dirRow: $('dir-row'),
+  dirInput: $('dir-input'),
+  dirLoad: $('dir-load'),
   fallback: $('pick-fallback'),
   status: $('status'),
   progress: $('progress'),
   tabs: $('tabs'),
+  modes: $('modes'),
   stage: $('stage'),
   poses: $('poses'),
   emots: $('emots'),
@@ -36,6 +40,10 @@ let gf = new GameFiles()
 const loaded = new Map()
 const loading = new Map()
 let curKey = ''
+/** 'person' 立绘 / 'other' 非立绘图片（事件 CG、UI、小游戏素材等） */
+let mode = 'person'
+const curDefs = () => (mode === 'other' ? gf.others : gf.defs)
+const findDef = (key) => gf.defs.find((d) => d.key === key) ?? gf.others.find((d) => d.key === key)
 let curPose = null
 let curEmotion = null
 /** 同一组表情（listup）上次选中的表情，切换姿势时沿用，与游戏 vp 的行为一致 */
@@ -65,16 +73,33 @@ async function onFilesReady() {
   curKey = ''
   curPose = null
   curEmotion = null
-  if (!gf.defs.length) {
-    setStatus('没有找到 __ev_*.pxls.dat。请选择 StreamingAssets 或其中的 EvImg 文件夹。', true)
+  if (!gf.defs.length && !gf.others.length) {
+    setStatus('没有找到 *.pxls.dat。请选择 StreamingAssets 或其中的 EvImg 文件夹。', true)
     el.tabs.replaceChildren()
+    el.modes.hidden = true
     el.stage.hidden = true
     return
   }
-  setStatus(`找到 ${gf.defs.length} 个角色立绘包。`)
-  renderTabs()
-  await selectPerson(gf.defs.find((d) => d.key === 'n')?.key ?? gf.defs[0].key)
+  setStatus(`找到 ${gf.defs.length} 个角色立绘包、${gf.others.length} 个非立绘图片包。`)
+  el.modes.hidden = !gf.others.length
+  await setMode(gf.defs.length ? 'person' : 'other')
 }
+function applyMode(m) {
+  mode = m
+  el.stage.classList.toggle('other', m === 'other')
+  document.querySelector(`input[name="batch-mode"][value="${m === 'other' ? 'run' : 'emotion'}"]`).checked = true
+  for (const b of Array.from(el.modes.children)) b.setAttribute('aria-selected', String(b.dataset.mode === m))
+  renderTabs()
+}
+async function setMode(m) {
+  applyMode(m)
+  const defs = curDefs()
+  if (!defs.length) return
+  curPose = null
+  curEmotion = null
+  await selectPerson(defs.find((d) => d.key === 'n')?.key ?? defs[0].key)
+}
+for (const b of Array.from(el.modes.children)) b.addEventListener('click', () => mode !== b.dataset.mode && void setMode(b.dataset.mode))
 el.pick.addEventListener('click', async () => {
   if ('showDirectoryPicker' in window) {
     try {
@@ -111,6 +136,86 @@ window.addEventListener('drop', async (e) => {
   for (const en of entries) await gf.addEntry(en)
   await onFilesReady()
 })
+// exe 自带服务器：能直接按路径读取游戏文件。路径来自 ?dir=、命令行 --dir=，或上次成功加载的路径
+async function loadServerDir(dir) {
+  setStatus('正在读取 ' + dir + ' …')
+  try {
+    const r = await fetch('/__dir/list?dir=' + encodeURIComponent(dir))
+    const j = await r.json()
+    if (!r.ok) {
+      setStatus(j.error, true)
+      return
+    }
+    el.dirInput.value = j.dir
+    gf = new GameFiles()
+    for (const n of j.names) {
+      gf.files.set(n, async () => new File([await (await fetch('/__dir/file/' + encodeURIComponent(n))).arrayBuffer()], n))
+    }
+    await onFilesReady()
+  } catch (e) {
+    setStatus('读取路径失败：' + e.message, true)
+  }
+}
+if (onServer) {
+  el.dirRow.hidden = false
+  el.dirLoad.addEventListener('click', () => el.dirInput.value.trim() && void loadServerDir(el.dirInput.value.trim()))
+  el.dirInput.addEventListener('keydown', (e) => e.key === 'Enter' && el.dirLoad.click())
+  void (async () => {
+    const q = new URLSearchParams(location.search).get('dir')
+    const cfg = await (await fetch('/__config')).json()
+    const dir = q || cfg.dir
+    if (dir) {
+      el.dirInput.value = dir
+      await loadServerDir(dir)
+    }
+  })()
+}
+// ───────────── 检查更新（仅 exe 自带服务器） ─────────────
+async function checkForUpdate() {
+  let u
+  try {
+    u = await (await fetch('/__update/check')).json()
+  } catch {
+    return
+  }
+  if (u.error || !u.newer || u.ignored) return
+  const dlg = $('update-dialog')
+  $('update-ver').textContent = 'v' + u.latest
+  $('update-sub').textContent = `当前版本 v${u.current}。`
+  $('update-notes').textContent = u.notes || '（没有更新说明）'
+  $('update-page').href = u.url
+  $('update-apply').hidden = !u.canSelfUpdate
+  const msg = $('update-msg')
+  $('update-later').onclick = () => dlg.close()
+  $('update-ignore').onclick = () => {
+    void fetch('/__update/ignore?v=' + encodeURIComponent(u.latest), { method: 'POST' })
+    dlg.close()
+  }
+  $('update-apply').onclick = async () => {
+    for (const b of dlg.querySelectorAll('button')) b.disabled = true
+    msg.classList.remove('error')
+    msg.textContent = '正在下载并安装，请稍候…'
+    try {
+      const r = await fetch('/__update/apply', { method: 'POST' })
+      if (!r.ok) throw new Error((await r.json()).error)
+      msg.textContent = '更新完成，正在重启…'
+      for (let i = 0; i < 40; i++) {
+        await new Promise((res) => setTimeout(res, 1000))
+        try {
+          const c = await (await fetch('/__config', { cache: 'no-store' })).json()
+          if (c.version === u.latest) return location.reload()
+        } catch {}
+      }
+      msg.textContent = '没能自动重启，请手动重新打开 VPicker。'
+    } catch (e) {
+      msg.classList.add('error')
+      msg.textContent = '更新失败：' + e.message
+      for (const b of dlg.querySelectorAll('button')) b.disabled = false
+    }
+  }
+  dlg.showModal()
+}
+if (onServer) void checkForUpdate()
 // 仅开发模式：/?auto=1 从 dev 服务器的 /__game 读取文件（见 vite.config.ts）
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('auto')) {
   void (async () => {
@@ -125,7 +230,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('auto')) {
 // ───────────── 角色 ─────────────
 function renderTabs() {
   el.tabs.replaceChildren(
-    ...gf.defs.map((d) => {
+    ...curDefs().map((d) => {
       const b = document.createElement('button')
       b.type = 'button'
       b.className = 'tab'
@@ -153,7 +258,7 @@ function ensureLoaded(key) {
   if (got) return Promise.resolve(got)
   let p = loading.get(key)
   if (!p) {
-    const def = gf.defs.find((d) => d.key === key)
+    const def = findDef(key)
     if (!def) return Promise.reject(new Error('没有角色 ' + key))
     p = loadPerson(gf, def, wasmPath, (f, label) => {
       el.progress.hidden = f >= 1
@@ -174,6 +279,11 @@ function ensureLoaded(key) {
 }
 async function selectPerson(key, pose, emotion) {
   const token = (selectToken = {})
+  if (key !== curKey) {
+    resetView()
+    picked.clear()
+    updatePicked()
+  }
   curKey = key
   markTab()
   let lp = loaded.get(key)
@@ -189,7 +299,7 @@ async function selectPerson(key, pose, emotion) {
     }
     if (token !== selectToken) return
   }
-  setStatus(`${key}：${lp.person.poses.length} 个姿势`)
+  setStatus(`${key}：${lp.person.poses.length} ${mode === 'other' ? '张图' : '个姿势'}`)
   el.stage.hidden = false
   renderPoseList(lp)
   const target = pose ?? lp.person.poses.find((p) => !p.dontAppearOnEditor) ?? lp.person.poses[0]
@@ -226,6 +336,21 @@ function poseDims(p) {
   const pose = p.source.seq.pose
   return { w: pose.width, h: pose.height }
 }
+// 非立绘：Ctrl+点击多选，选中的图可在批处理里一起下载
+const picked = new Set()
+const selCount = $('sel-count')
+function updatePicked() {
+  selCount.textContent = String(picked.size)
+  for (const b of Array.from(el.poses.children)) b.classList.toggle('picked', picked.has(b._pose))
+}
+function togglePicked(lp, p) {
+  if (picked.has(p)) picked.delete(p)
+  else picked.add(p)
+  updatePicked()
+  el.batch.open = true
+  document.querySelector('input[name="batch-mode"][value="sel"]').checked = true
+  refreshBatch()
+}
 function renderPoseList(lp) {
   const items = []
   lp.person.poses.forEach((p, i) => {
@@ -236,7 +361,12 @@ function renderPoseList(lp) {
       drawPose(ctx, lp.store, p, p.emotions?.[0]?.key ?? null, ctx.canvas.width / 2, ctx.canvas.height / 2, s)
     })
     b.dataset.index = String(i)
-    b.addEventListener('click', () => selectPose(lp, p))
+    b.addEventListener('click', (e) => {
+      if (mode === 'other' && (e.ctrlKey || e.metaKey)) return togglePicked(lp, p, b)
+      selectPose(lp, p)
+    })
+    b.classList.toggle('picked', picked.has(p))
+    b._pose = p
     items.push(b)
   })
   el.poses.replaceChildren(...items)
@@ -296,9 +426,62 @@ function redraw(lp) {
   ctx.clearRect(0, 0, c.width, c.height)
   drawPose(ctx, lp.store, curPose, curEmotion, c.width / 2, c.height / 2, s)
 }
+// 预览缩放：滚轮以鼠标位置为中心缩放，拖动平移，双击复位
+const view = { z: 1, x: 0, y: 0 }
+const hint = $('zoom-hint')
+function applyView() {
+  el.preview.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.z})`
+  hint.textContent = view.z === 1 ? '' : `${Math.round(view.z * 100)}%（双击复位）`
+}
+function resetView() {
+  view.z = 1
+  view.x = view.y = 0
+  applyView()
+}
+el.previewWrap.addEventListener(
+  'wheel',
+  (e) => {
+    e.preventDefault()
+    const r = el.previewWrap.getBoundingClientRect()
+    const cx = e.clientX - (r.left + r.width / 2)
+    const cy = e.clientY - (r.top + r.height / 2)
+    const z = Math.min(16, Math.max(0.2, view.z * Math.exp(-e.deltaY * 0.0015)))
+    const k = z / view.z
+    view.x = cx - (cx - view.x) * k
+    view.y = cy - (cy - view.y) * k
+    view.z = z
+    if (Math.abs(z - 1) < 0.03) resetView()
+    else applyView()
+  },
+  { passive: false }
+)
+let drag = null
+el.previewWrap.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0) return
+  drag = { x: e.clientX - view.x, y: e.clientY - view.y }
+  el.previewWrap.setPointerCapture(e.pointerId)
+  el.preview.classList.add('dragging')
+})
+el.previewWrap.addEventListener('pointermove', (e) => {
+  if (!drag) return
+  view.x = e.clientX - drag.x
+  view.y = e.clientY - drag.y
+  applyView()
+})
+const endDrag = () => {
+  drag = null
+  el.preview.classList.remove('dragging')
+}
+el.previewWrap.addEventListener('pointerup', endDrag)
+el.previewWrap.addEventListener('pointercancel', endDrag)
+el.previewWrap.addEventListener('dblclick', resetView)
 let writing = false
 function writeCmd() {
   if (!curPose) return
+  if (mode !== 'person') {
+    if (el.batch.open) refreshBatch()
+    return
+  }
   writing = true
   el.cmd.value = buildPic(curKey, curPose, curEmotion ?? '', el.flagN.checked).trimEnd()
   writing = false
@@ -416,6 +599,10 @@ async function applyCmdText(text) {
     return
   }
   el.flagN.checked = /\bN\b/.test(c.rest)
+  if (mode !== 'person') {
+    applyMode('person')
+    curKey = ''
+  }
   if (curKey !== c.person) await selectPerson(c.person, t.pose, t.emotionFound ? t.emotion : null)
   else selectPose(lp, t.pose, t.emotionFound ? t.emotion : null)
   // 保留用户输入的原文，不被重新生成的格式覆盖
@@ -456,18 +643,22 @@ function refreshBatch() {
   const lp = loaded.get(curKey)
   batchItems = []
   if (lp && curPose) {
-    if (batchMode() === 'emotion') batchItems = curEmotion ? collectByEmotion(lp.person, curEmotion) : []
+    const bm = batchMode()
+    if (bm === 'emotion') batchItems = curEmotion ? collectByEmotion(lp.person, curEmotion) : []
+    else if (bm === 'run') batchItems = collectFrameRun(lp.person, curPose)
+    else if (bm === 'all') batchItems = collectAllPoses(lp.person)
+    else if (bm === 'sel') batchItems = lp.person.poses.filter((p) => picked.has(p)).map((pose) => ({ pose, emotion: null }))
     else batchItems = collectByPose(curPose)
   }
-  const label = batchMode() === 'emotion' ? `表情 ${curEmotion ?? '—'}` : `姿势 ${curPose?.name ?? '—'}`
+  const label = { emotion: `表情 ${curEmotion ?? '—'}`, pose: `姿势 ${curPose?.name ?? '—'}`, run: `序列 ${curPose?.name ?? '—'}`, all: `图片包 ${curKey}`, sel: '已选图片' }[batchMode()]
   el.batchCount.textContent = `${label}：共 ${batchItems.length} 项`
   el.batchCopy.disabled = el.batchZip.disabled = batchItems.length === 0
   el.batchList.replaceChildren(
     ...batchItems.map((it) => {
       const { w, h } = poseDims(it.pose)
       const s = Math.min(84 / w, 110 / h)
-      const label = batchMode() === 'emotion' ? it.pose.name : it.emotion
-      const b = makeItem(label, buildPic(curKey, it.pose, it.emotion).trim(), Math.max(1, Math.round(w * s)), Math.max(1, Math.round(h * s)), (ctx) =>
+      const label = batchMode() === 'pose' ? it.emotion : it.pose.name
+      const b = makeItem(label, mode === 'other' ? it.pose.name : buildPic(curKey, it.pose, it.emotion).trim(), Math.max(1, Math.round(w * s)), Math.max(1, Math.round(h * s)), (ctx) =>
         drawPose(ctx, lp.store, it.pose, it.emotion, ctx.canvas.width / 2, ctx.canvas.height / 2, s)
       )
       b.addEventListener('click', () => selectPose(lp, it.pose, it.emotion))
@@ -500,19 +691,21 @@ el.batchZip.addEventListener('click', async () => {
       setMsg(`正在渲染 ${i + 1} / ${items.length} …`)
       await nextFrame()
       const blob = await renderBlob(lp, items[i].pose, items[i].emotion)
-      const name = `${String(i + 1).padStart(2, '0')}_${safeFileName(`${curKey}_${items[i].pose.name}__${items[i].emotion}`)}.png`
+      const name = `${String(i + 1).padStart(items.length > 99 ? 3 : 2, '0')}_${safeFileName(mode === 'other' ? `${curKey}_${items[i].pose.name}` : `${curKey}_${items[i].pose.name}__${items[i].emotion}`)}.png`
       files.push({ name, data: new Uint8Array(await blob.arrayBuffer()) })
     }
-    const cmds = items.map((it) => buildPic(curKey, it.pose, it.emotion, el.flagN.checked).trimEnd())
-    files.push({ name: 'pic.txt', data: new TextEncoder().encode(cmds.join('\r\n') + '\r\n') })
+    if (mode === 'person') {
+      const cmds = items.map((it) => buildPic(curKey, it.pose, it.emotion, el.flagN.checked).trimEnd())
+      files.push({ name: 'pic.txt', data: new TextEncoder().encode(cmds.join('\r\n') + '\r\n') })
+    }
     const zip = makeZip(files)
-    const base = batchMode() === 'emotion' ? `${curKey}_表情_${curEmotion}` : `${curKey}_姿势_${curPose.name}`
+    const base = { emotion: `${curKey}_表情_${curEmotion}`, pose: `${curKey}_姿势_${curPose.name}`, run: `${curKey}_序列_${curPose.name}`, all: `${curKey}_全部`, sel: `${curKey}_已选` }[batchMode()]
     const a = document.createElement('a')
     a.href = URL.createObjectURL(zip)
     a.download = safeFileName(base) + '.zip'
     a.click()
     setTimeout(() => URL.revokeObjectURL(a.href), 10000)
-    setMsg(`已打包 ${items.length} 张图片和 pic.txt`)
+    setMsg(mode === 'person' ? `已打包 ${items.length} 张图片和 pic.txt` : `已打包 ${items.length} 张图片`)
   } catch (e) {
     setMsg('打包失败：' + e.message, true)
   } finally {

@@ -16,7 +16,7 @@ function devGameFiles() {
         for (const f of readdirSync(d)) {
           const p = join(d, f)
           if (statSync(p).isDirectory()) walk(p, out)
-          else if (/^(__ev_.*\.dat|__vp_person\.dat)$/.test(f)) out[f] = p
+          else if (/^(.+\.pxls\.(bytes\.texture_\d+\.)?dat|__vp_person\.dat)$/.test(f)) out[f] = p
         }
         return out
       }

@@ -55,3 +55,15 @@ describe.skipIf(!has)('批处理展开', () => {
     console.log(`表情 ${emo} 出现在 ${items.length} 个姿势`)
   })
 })
+
+describe('collectFrameRun', () => {
+  const mk = (...names) => ({ poses: names.map((name) => ({ name })) })
+  it('只取包含当前图的连续序号序列', async () => {
+    const { collectFrameRun } = await import('../src/batch')
+    const person = mk('walk/a0', 'walk/a1', 'walk/a2', 'walk/a4', 'stand/a0', 'icon')
+    const names = (p) => collectFrameRun(person, p).map((x) => x.pose.name)
+    expect(names(person.poses[1])).toEqual(['walk/a0', 'walk/a1', 'walk/a2'])
+    expect(names(person.poses[3])).toEqual(['walk/a4'])
+    expect(names(person.poses[5])).toEqual(['icon'])
+  })
+})

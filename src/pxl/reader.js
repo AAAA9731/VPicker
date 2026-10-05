@@ -35,7 +35,9 @@ export function readPxl(title, data) {
       }
     } else if (tag === '%PTCL_SECTION%') {
       extract(r) // 颜色数据，立绘选择器用不到
-    } else if (tag === '%IMGS_SECTION%' || tag === '%IMGV_SECTION%' || tag === '%IMGD_SECTION%') {
+    } else if (tag === '%IMGV_SECTION%') {
+      extract(r) // 图像的顶点/网格附加数据，图集本身已在 PACK 段里，选择器只需要位图
+    } else if (tag === '%IMGS_SECTION%' || tag === '%IMGD_SECTION%') {
       throw new Error('不支持的图像段类型: ' + tag)
     } else {
       throw new Error('无效的段标签: ' + tag)

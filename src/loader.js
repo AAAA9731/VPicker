@@ -4,12 +4,14 @@ import { readPxl } from './pxl/reader'
 import { buildPerson } from './pxl/person'
 import { guessPersonsFromFiles, parsePersonDef } from './persons'
 import { AtlasStore } from './render'
-const WANTED = /^(__ev_.*\.pxls\.dat|__ev_.*\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
+const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
 const SKIP_DIR = new Set(['Managed', 'MonoBleedingEdge', 'BepInEx', 'Resources', 'Plugins', 'Il2CppData'])
 /** 用户选中的文件夹里与立绘相关的文件索引（按文件名，不分目录）。 */
 export class GameFiles {
   files = new Map()
   defs = []
+  /** 非立绘的图片包（事件 CG、UI、小游戏素材等），key 即包名 */
+  others = []
   has(name) {
     return this.files.has(name)
   }
@@ -53,6 +55,11 @@ export class GameFiles {
     // __vp_person.dat 里没有登记、但文件存在的立绘包，补充一个猜测的角色 key
     for (const g of guessPersonsFromFiles(pxlNames)) if (!known.has(g.pxl)) defs.push(g)
     this.defs = defs.filter((d) => this.files.has(d.pxl + '.pxls.dat'))
+    const used = new Set(this.defs.map((d) => d.pxl))
+    this.others = pxlNames
+      .filter((n) => !n.startsWith('__ev_') && !used.has(n))
+      .sort()
+      .map((n) => ({ key: n, name: '', pxl: n }))
   }
 }
 const paint = () => new Promise((r) => setTimeout(r, 16))

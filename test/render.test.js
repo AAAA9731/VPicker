@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createCanvas } from '@napi-rs/canvas'
 import { GameFiles, loadPerson } from '../src/loader'
@@ -53,4 +53,18 @@ describe.skipIf(!has && !process.env.DUMP_DIR)('渲染', () => {
     if (out) writeFileSync(join(out, 'faces.png'), ft.toBuffer('image/png'))
     expect(lp.person.poses.length).toBeGreaterThan(0)
   }, 180000)
+})
+
+describe.skipIf(!has)('非立绘图片包', () => {
+  it('能区分并加载 __events_* 等图片包', async () => {
+    const gf = new GameFiles()
+    const dir = join(sa, 'EvImg')
+    for (const f of readdirSync(dir)) gf.files.set(f, async () => new File([readFileSync(join(dir, f))], f))
+    await gf.finish()
+    expect(gf.others.length).toBeGreaterThan(10)
+    expect(gf.others.some((d) => d.key === '__events_forest')).toBe(true)
+    expect(gf.others.some((d) => d.pxl.startsWith('__ev_'))).toBe(false)
+    const lp = await loadPerson(gf, gf.others.find((d) => d.key === '__events_forest'))
+    expect(lp.person.poses.length).toBeGreaterThan(0)
+  })
 })
