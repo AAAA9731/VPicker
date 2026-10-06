@@ -1,3 +1,5 @@
+![:name](https://count.getloli.com/@AAAA9731-VPicker?theme=asoul&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)
+
 # VPicker
 
 从游戏数据中提取所有 PXL 图像的工具：角色立绘（含姿势与表情差分）、事件 CG、UI、小游戏素材、敌人和 NPC 等。纯浏览器运行，不需要启动游戏。
