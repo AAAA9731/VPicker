@@ -6,9 +6,17 @@ import { guessPersonsFromFiles, parsePersonDef } from './persons'
 import { AtlasStore } from './render'
 const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
 const SKIP_DIR = new Set(['Managed', 'MonoBleedingEdge', 'BepInEx', 'Resources', 'Plugins', 'Il2CppData'])
+/** SimplePatch 的 PicLoad 补丁读取自定义 PNG 的文件夹（StreamingAssets 下） */
+const PIC_DIR = 'SimplePatch_pic'
+const isPng = (n) => /\.png$/i.test(n)
 /** 用户选中的文件夹里与立绘相关的文件索引（按文件名，不分目录）。 */
 export class GameFiles {
   files = new Map()
+  /** 是否找到 SimplePatch_pic 文件夹，以及里面的 PNG（相对该文件夹的路径 → 取文件） */
+  picDir = false
+  /** 是否能往 SimplePatch_pic 写文件（导入 / 重命名）：只有 exe 自带服务器按路径加载时为 true */
+  writable = false
+  pics = new Map()
   defs = []
   /** 非立绘的图片包（事件 CG、UI、小游戏素材等），key 即包名 */
   others = []
@@ -21,27 +29,59 @@ export class GameFiles {
     return new Uint8Array(await (await g()).arrayBuffer())
   }
   async addFileList(list) {
-    for (const f of Array.from(list)) if (WANTED.test(f.name)) this.files.set(f.name, async () => f)
+    for (const f of Array.from(list)) {
+      if (WANTED.test(f.name)) this.files.set(f.name, async () => f)
+      const segs = (f.webkitRelativePath || '').split('/')
+      const at = segs.indexOf(PIC_DIR)
+      if (at >= 0 && at < segs.length - 1) {
+        this.picDir = true
+        if (isPng(f.name)) this.pics.set(segs.slice(at + 1).join('/'), async () => f)
+      }
+    }
   }
-  async addDirHandle(dir, depth = 0) {
+  /** picRel：位于 SimplePatch_pic 内时，当前目录相对它的路径（根为 ''）；否则为 null。 */
+  async addDirHandle(dir, depth = 0, picRel = null) {
+    if (picRel === null && dir.name === PIC_DIR) {
+      this.picDir = true
+      picRel = ''
+    }
     for await (const [name, h] of dir.entries()) {
       if (h.kind === 'directory') {
-        if (depth < 8 && !SKIP_DIR.has(name)) await this.addDirHandle(h, depth + 1)
+        if (picRel !== null) {
+          if (depth < 8) await this.addDirHandle(h, depth + 1, picRel + name + '/')
+        } else if (name === PIC_DIR) {
+          this.picDir = true
+          await this.addDirHandle(h, depth + 1, '')
+        } else if (depth < 8 && !SKIP_DIR.has(name)) await this.addDirHandle(h, depth + 1)
+      } else if (picRel !== null) {
+        if (isPng(name)) this.pics.set(picRel + name, () => h.getFile())
       } else if (WANTED.test(name)) {
         this.files.set(name, () => h.getFile())
       }
     }
   }
-  async addEntry(entry, depth = 0) {
+  /** picRel 同 addDirHandle；entry 是 SimplePatch_pic 自身时按根处理。 */
+  async addEntry(entry, depth = 0, picRel = null) {
     if (entry.isFile) {
-      if (WANTED.test(entry.name)) this.files.set(entry.name, () => new Promise((res, rej) => entry.file(res, rej)))
-    } else if (entry.isDirectory && depth < 8 && !SKIP_DIR.has(entry.name)) {
-      const reader = entry.createReader()
-      for (;;) {
-        const batch = await new Promise((res, rej) => reader.readEntries(res, rej))
-        if (!batch.length) break
-        for (const e of batch) await this.addEntry(e, depth + 1)
+      if (picRel !== null) {
+        if (isPng(entry.name)) this.pics.set(picRel + entry.name, () => new Promise((res, rej) => entry.file(res, rej)))
+      } else if (WANTED.test(entry.name)) {
+        this.files.set(entry.name, () => new Promise((res, rej) => entry.file(res, rej)))
       }
+      return
+    }
+    if (!entry.isDirectory || depth >= 8) return
+    let childRel = null
+    if (picRel !== null) childRel = picRel + entry.name + '/'
+    else if (entry.name === PIC_DIR) {
+      this.picDir = true
+      childRel = ''
+    } else if (SKIP_DIR.has(entry.name)) return
+    const reader = entry.createReader()
+    for (;;) {
+      const batch = await new Promise((res, rej) => reader.readEntries(res, rej))
+      if (!batch.length) break
+      for (const e of batch) await this.addEntry(e, depth + 1, childRel)
     }
   }
   /** 选择完成后调用：解析角色表。 */

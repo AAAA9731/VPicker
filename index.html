@@ -22,6 +22,7 @@
   <nav id="modes" aria-label="内容类型" hidden>
     <button id="mode-person" type="button" class="mode" data-mode="person">立绘</button>
     <button id="mode-other" type="button" class="mode" data-mode="other">非立绘图片</button>
+    <button id="mode-custom" type="button" class="mode" data-mode="custom" title="检测到 StreamingAssets/SimplePatch_pic（SimplePatch 的 PicLoad 补丁）时出现" hidden>自定义图片</button>
   </nav>
 
   <nav id="tabs" aria-label="角色"></nav>
@@ -33,7 +34,7 @@
     </section>
 
     <section class="col" id="center">
-      <div id="preview-wrap"><canvas id="preview"></canvas><span id="zoom-hint" title="滚轮缩放，拖动平移，双击复位"></span></div>
+      <div id="preview-wrap"><canvas id="preview"></canvas><span id="zoom-hint" title="滚轮缩放，拖动平移，双击复位"></span><span id="zoom-badge" class="zoom-badge" title="预览里图片像素与原图像素的比例"></span></div>
       <div id="cmd-row">
         <input id="cmd" type="text" spellcheck="false" placeholder="PIC n a_3/a2__F1__f3__m1__b1_uo" />
         <label class="flag"><input id="flag-n" type="checkbox" /> N</label>
@@ -77,6 +78,41 @@
     <section class="col" id="emots-col">
       <h2>表情</h2>
       <div id="emots" class="grid"></div>
+    </section>
+  </main>
+
+  <main id="custom" hidden>
+    <section class="col" id="custom-list-col">
+      <h2>SimplePatch_pic 里的 PNG</h2>
+      <p id="custom-hint" hidden>这个文件夹里还没有 PNG。把图片放进 SimplePatch_pic 后重新加载路径即可。</p>
+      <div id="custom-list" class="grid"></div>
+    </section>
+    <section class="col" id="custom-main">
+      <div id="custom-stage">
+      <div id="custom-window">
+        <div id="custom-titlebar"><span>AliceInCradle</span><select id="custom-res" title="游戏设置里的窗口分辨率（都是 16:9）"></select></div>
+        <div id="custom-screen"><canvas id="custom-canvas"></canvas><img id="custom-preview" alt="" hidden /></div>
+      </div>
+      <span id="custom-badge" class="zoom-badge" title="预览里图片像素与原图像素的比例"></span>
+      <span id="custom-zoom-hint"></span>
+      </div>
+      <div id="custom-info"></div>
+      <div id="custom-form">
+        <label>id <input id="custom-id" type="text" spellcheck="false" placeholder="事件里 PIC 用的名字" /></label>
+        <label title="PIC_MV 的坐标：逻辑像素，画面中心为 0，y 向上为正；也可以直接在预览里拖动图片">位置 x <input id="custom-ox" type="number" value="0" step="1" /></label>
+        <label>y <input id="custom-oy" type="number" value="0" step="1" /></label>
+        <button id="custom-center" type="button" title="位置归零">居中</button>
+        <label title="游戏的 PIC 只支持这几档缩放（h 标志 = 0.5 倍，PIC_MVA ZOOM2/3/4 = 2/3/4 倍）">缩放 <select id="custom-scale"></select></label>
+        <label>PIC 层 <input id="custom-layer" type="text" spellcheck="false" value="&amp;1" /></label>
+        <label>额外参数 <input id="custom-extra" type="text" spellcheck="false" placeholder="可留空" /></label>
+      </div>
+      <textarea id="custom-out" rows="4" spellcheck="false" readonly placeholder="在左侧点选一张图片，这里会生成 PIC_LOAD 和 PIC 指令"></textarea>
+      <div id="custom-actions">
+        <button id="custom-copy" type="button">复制两行指令</button>
+        <button id="custom-copy-load" type="button">只复制 PIC_LOAD</button>
+        <button id="custom-copy-all" type="button">复制全部图片的 PIC_LOAD</button>
+      </div>
+      <div id="custom-msg"></div>
     </section>
   </main>
 

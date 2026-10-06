@@ -2,6 +2,7 @@ import { GameFiles, loadPerson } from './loader'
 import { getEmotInfo } from './pxl/person'
 import { buildPic, locatePic, parsePicLine } from './pic'
 import { drawFaceThumb, drawPose } from './render'
+import { createCustomPanel } from './custom'
 import { collectAllPoses, collectByEmotion, collectByPose, collectFrameRun, makeZip, safeFileName } from './batch'
 const $ = (id) => document.getElementById(id)
 const el = {
@@ -26,6 +27,7 @@ const el = {
   bgMode: $('img-bg-mode'),
   bgColor: $('img-bg-color'),
   previewWrap: $('preview-wrap'),
+  zoomBadge: $('zoom-badge'),
   msg: $('cmd-msg'),
   batch: $('batch'),
   batchList: $('batch-list'),
@@ -65,6 +67,29 @@ function setMsg(text, error = false) {
   el.msg.textContent = text
   el.msg.classList.toggle('error', error)
 }
+// 导入 / 重命名要写磁盘，只有 exe 自带服务器按路径加载游戏文件夹（gf.writable）时才可用
+async function picApi(path, init) {
+  const r = await fetch(path, init)
+  const j = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error(j.error ?? '服务器返回 ' + r.status)
+  return j.name
+}
+const customPanel = createCustomPanel({
+  root: $('custom'),
+  notify: (t, err) => customMsg(t, err),
+  api: {
+    get canWrite() {
+      return !!gf.writable && gf.picDir
+    },
+    upload: (file, name) => picApi('/__pic/upload?name=' + encodeURIComponent(name), { method: 'POST', body: file }),
+    rename: (from, to) => picApi('/__pic/rename?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to), { method: 'POST' }),
+  },
+})
+function customMsg(text, error = false) {
+  if (text) serverLog((error ? '错误：' : '') + text)
+  $('custom-msg').textContent = text
+  $('custom-msg').classList.toggle('error', error)
+}
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)))
 // ───────────── 选择文件 ─────────────
 async function onFilesReady() {
@@ -74,18 +99,29 @@ async function onFilesReady() {
   curKey = ''
   curPose = null
   curEmotion = null
-  if (!gf.defs.length && !gf.others.length) {
+  customPanel.setFiles(gf.pics)
+  $('mode-custom').hidden = !gf.picDir
+  if (!gf.defs.length && !gf.others.length && !gf.picDir) {
     setStatus('没有找到 *.pxls.dat。请选择 StreamingAssets 或其中的 EvImg 文件夹。', true)
     el.tabs.replaceChildren()
     el.modes.hidden = true
     el.stage.hidden = true
     return
   }
-  setStatus(`找到 ${gf.defs.length} 个角色立绘包、${gf.others.length} 个非立绘图片包。`)
-  el.modes.hidden = !gf.others.length
+  setStatus(`找到 ${gf.defs.length} 个角色立绘包、${gf.others.length} 个非立绘图片包` + (gf.picDir ? `、${gf.pics.size} 张自定义图片（SimplePatch_pic）。` : '。'))
+  el.modes.hidden = !gf.others.length && !gf.picDir
+  if (!gf.defs.length && !gf.others.length) return showCustom()
   await setMode(gf.defs.length ? 'person' : 'other')
 }
+function showCustom() {
+  mode = 'custom'
+  for (const b of Array.from(el.modes.children)) b.setAttribute('aria-selected', String(b.dataset.mode === 'custom'))
+  el.tabs.replaceChildren()
+  el.stage.hidden = true
+  $('custom').hidden = false
+}
 function applyMode(m) {
+  $('custom').hidden = true
   mode = m
   el.stage.classList.toggle('other', m === 'other')
   document.querySelector(`input[name="batch-mode"][value="${m === 'other' ? 'run' : 'emotion'}"]`).checked = true
@@ -100,7 +136,7 @@ async function setMode(m) {
   curEmotion = null
   await selectPerson(defs.find((d) => d.key === 'n')?.key ?? defs[0].key)
 }
-for (const b of Array.from(el.modes.children)) b.addEventListener('click', () => mode !== b.dataset.mode && void setMode(b.dataset.mode))
+for (const b of Array.from(el.modes.children)) b.addEventListener('click', () => mode !== b.dataset.mode && (b.dataset.mode === 'custom' ? showCustom() : void setMode(b.dataset.mode)))
 el.pick.addEventListener('click', async () => {
   if ('showDirectoryPicker' in window) {
     try {
@@ -125,6 +161,13 @@ el.fallback.addEventListener('change', async () => {
 window.addEventListener('dragover', (e) => e.preventDefault())
 window.addEventListener('drop', async (e) => {
   e.preventDefault()
+  // 把 PNG 拖进来 = 导入到 SimplePatch_pic（先给个名字，再打开重命名框）
+  const dropped = Array.from(e.dataTransfer?.files ?? [])
+  if (gf.picDir && dropped.length && dropped.every((f) => /\.png$/i.test(f.name))) {
+    showCustom()
+    await customPanel.importFiles(dropped)
+    return
+  }
   const items = e.dataTransfer?.items
   if (!items) return
   const entries = []
@@ -151,6 +194,11 @@ async function loadServerDir(dir) {
     gf = new GameFiles()
     for (const n of j.names) {
       gf.files.set(n, async () => new File([await (await fetch('/__dir/file/' + encodeURIComponent(n))).arrayBuffer()], n))
+    }
+    gf.picDir = !!j.picDir
+    gf.writable = true
+    for (const n of j.pics ?? []) {
+      gf.pics.set(n, async () => new File([await (await fetch('/__dir/pic/' + encodeURIComponent(n))).arrayBuffer()], n.split('/').pop(), { type: 'image/png' }))
     }
     await onFilesReady()
   } catch (e) {
@@ -426,12 +474,23 @@ function redraw(lp) {
   const ctx = c.getContext('2d')
   ctx.clearRect(0, 0, c.width, c.height)
   drawPose(ctx, lp.store, curPose, curEmotion, c.width / 2, c.height / 2, s)
+  requestAnimationFrame(updateZoomBadge)
 }
 // 预览缩放：滚轮以鼠标位置为中心缩放，拖动平移，双击复位
 const view = { z: 1, x: 0, y: 0 }
 const hint = $('zoom-hint')
+/** 预览左下角的倍率：画面上图片像素 / 原图像素（含 CSS 适配缩放和滚轮缩放）。 */
+function updateZoomBadge() {
+  const c = el.preview
+  const w = c.getBoundingClientRect().width
+  // 按物理像素算（系统缩放 150% 时 1 CSS 像素 = 1.5 物理像素），100% 即 1:1 真实大小
+  el.zoomBadge.textContent = c.width && w ? `${Math.round(((w * (window.devicePixelRatio || 1)) / c.width) * 100)}%` : ''
+}
+new ResizeObserver(updateZoomBadge).observe(el.previewWrap)
+window.addEventListener('resize', updateZoomBadge)
 function applyView() {
   el.preview.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.z})`
+  updateZoomBadge()
   hint.textContent = view.z === 1 ? '' : `${Math.round(view.z * 100)}%（双击复位）`
 }
 function resetView() {

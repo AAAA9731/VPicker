@@ -6,7 +6,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSyn
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { homedir } from 'node:os'
-import { dirname, extname, join, normalize, resolve } from 'node:path'
+import { basename, dirname, extname, join, normalize, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getAsset, isSea } from 'node:sea'
 
@@ -139,7 +139,19 @@ const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.d
 const SKIP_DIR = new Set(['Managed', 'MonoBleedingEdge', 'BepInEx', 'Resources', 'Plugins', 'Il2CppData'])
 /** 当前选定目录里的文件索引：文件名 → 完整路径 */
 let gameIndex = new Map()
-function scanDir(dir, out = new Map(), depth = 0) {
+/** SimplePatch 的自定义图片文件夹（StreamingAssets/SimplePatch_pic）里的 PNG：相对路径 → 完整路径 */
+const PIC_DIR = 'SimplePatch_pic'
+const SAFE_PIC = /^[A-Za-z0-9_\-.]+\.png$/i
+const MAX_PIC_BYTES = 50 * 1024 * 1024
+let picIndex = new Map()
+/** SimplePatch_pic 文件夹本身的完整路径（导入 / 重命名只在这里面操作） */
+let picRoot = ''
+function scanDir(dir, out = new Map(), depth = 0, pics = { found: false, files: new Map(), root: '' }, picRel = null) {
+  if (picRel === null && basename(dir) === PIC_DIR) {
+    pics.found = true
+    pics.root = dir
+    picRel = ''
+  }
   for (const name of readdirSync(dir)) {
     const p = join(dir, name)
     let st
@@ -149,7 +161,15 @@ function scanDir(dir, out = new Map(), depth = 0) {
       continue
     }
     if (st.isDirectory()) {
-      if (depth < 8 && !SKIP_DIR.has(name)) scanDir(p, out, depth + 1)
+      if (picRel !== null) {
+        if (depth < 8) scanDir(p, out, depth + 1, pics, picRel + name + '/')
+      } else if (name === PIC_DIR) {
+        pics.found = true
+        pics.root = p
+        scanDir(p, out, depth + 1, pics, '')
+      } else if (depth < 8 && !SKIP_DIR.has(name)) scanDir(p, out, depth + 1, pics)
+    } else if (picRel !== null) {
+      if (/\.png$/i.test(name)) pics.files.set(picRel + name, p)
     } else if (WANTED.test(name)) out.set(name, p)
   }
   return out
@@ -218,7 +238,7 @@ const sendJson = (res, code, obj) => {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://localhost')
-  if (url.pathname === '/__config' || url.pathname.startsWith('/__dir/') || url.pathname.startsWith('/__update/')) {
+  if (url.pathname === '/__config' || url.pathname.startsWith('/__dir/') || url.pathname.startsWith('/__update/') || url.pathname.startsWith('/__pic/')) {
     // 这些接口会读本机文件，只允许本页面自己（同源）访问
     const origin = req.headers.origin
     if (origin && new URL(origin).host !== req.headers.host) return void res.writeHead(403).end()
@@ -252,21 +272,79 @@ const server = http.createServer((req, res) => {
   }
   if (url.pathname === '/__dir/list') {
     const dir = resolve(url.searchParams.get('dir') ?? '')
-    let names
+    let names, picDir, picNames
     try {
       if (!statSync(dir).isDirectory()) throw new Error('不是文件夹')
-      const idx = scanDir(dir)
+      const pics = { found: false, files: new Map(), root: '' }
+      const idx = scanDir(dir, new Map(), 0, pics)
       names = [...idx.keys()]
-      if (names.length) {
+      picDir = pics.found
+      picNames = [...pics.files.keys()]
+      if (names.length || pics.found) {
         gameIndex = idx
+        picIndex = pics.files
+        picRoot = pics.root
         saveConfig({ ...loadConfig(), dir })
-        log('目录', `${dir}（${names.length} 个相关文件）`, C.green)
+        log('目录', `${dir}（${names.length} 个相关文件${pics.found ? `，${PIC_DIR} 里 ${picNames.length} 张自定义图片` : ''}）`, C.green)
       }
     } catch (e) {
       log('目录', `无法读取 ${dir}：${e.code === 'ENOENT' ? '路径不存在' : e.message}`, C.red)
       return sendJson(res, 404, { error: `无法读取 ${dir}：${e.code === 'ENOENT' ? '路径不存在' : e.message}` })
     }
-    return sendJson(res, 200, { dir, names })
+    return sendJson(res, 200, { dir, names, picDir, pics: picNames })
+  }
+  // 导入 / 重命名自定义图片（只允许在 SimplePatch_pic 里，文件名限制为字母数字 _ - .，且必须是 .png）
+  if (url.pathname === '/__pic/upload' && req.method === 'POST') {
+    const name = url.searchParams.get('name') ?? ''
+    if (!picRoot || !SAFE_PIC.test(name)) return sendJson(res, 400, { error: '文件名只能包含字母、数字、_ - .，且以 .png 结尾' })
+    const chunks = []
+    let size = 0
+    req.on('data', (d) => {
+      size += d.length
+      if (size <= MAX_PIC_BYTES) chunks.push(d)
+    })
+    req.on('end', () => {
+      if (size > MAX_PIC_BYTES) return sendJson(res, 413, { error: '图片太大（上限 50MB）' })
+      const data = Buffer.concat(chunks)
+      if (data.length < 8 || data.readUInt32BE(0) !== 0x89504e47) return sendJson(res, 400, { error: '不是有效的 PNG 文件' })
+      let final = name
+      for (let i = 1; picIndex.has(final) || existsSync(join(picRoot, final)); i++) final = name.replace(/\.png$/i, '') + '_' + i + '.png'
+      try {
+        writeFileSync(join(picRoot, final), data)
+      } catch (e) {
+        return sendJson(res, 500, { error: '写入失败：' + e.message })
+      }
+      picIndex.set(final, join(picRoot, final))
+      log('图片', `已导入 ${final}（${data.length} 字节）`, C.green)
+      sendJson(res, 200, { name: final })
+    })
+    return
+  }
+  if (url.pathname === '/__pic/rename' && req.method === 'POST') {
+    const from = url.searchParams.get('from') ?? ''
+    const to = url.searchParams.get('to') ?? ''
+    const src = picIndex.get(from)
+    if (!src) return sendJson(res, 404, { error: '找不到要重命名的文件' })
+    if (!SAFE_PIC.test(to)) return sendJson(res, 400, { error: '文件名只能包含字母、数字、_ - .，且以 .png 结尾' })
+    // 只改文件名，不换目录
+    const rel = from.includes('/') ? from.slice(0, from.lastIndexOf('/') + 1) + to : to
+    const dest = join(dirname(src), to)
+    if (rel !== from && (picIndex.has(rel) || existsSync(dest))) return sendJson(res, 409, { error: '已经有同名文件了' })
+    try {
+      if (rel !== from) renameSync(src, dest)
+    } catch (e) {
+      return sendJson(res, 500, { error: '重命名失败：' + e.message })
+    }
+    picIndex.delete(from)
+    picIndex.set(rel, dest)
+    log('图片', `${from} → ${rel}`, C.green)
+    return sendJson(res, 200, { name: rel })
+  }
+  if (url.pathname.startsWith('/__dir/pic/')) {
+    const p = picIndex.get(decodeURIComponent(url.pathname.slice('/__dir/pic/'.length)))
+    if (!p) return void res.writeHead(404).end()
+    res.writeHead(200, { 'content-type': 'image/png', 'cache-control': 'no-store' })
+    return void createReadStream(p).pipe(res)
   }
   if (url.pathname.startsWith('/__dir/file/')) {
     const p = gameIndex.get(decodeURIComponent(url.pathname.slice('/__dir/file/'.length)))
