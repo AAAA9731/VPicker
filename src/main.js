@@ -57,7 +57,7 @@ const emotMemory = new Map()
 // 运行在 exe 自带的本地服务器上时：保持一个心跳连接（关闭标签页后服务器会自动退出），并把状态同步到命令行窗口
 const onServer = !!document.querySelector('meta[name="aic-server"]')
 const spineView = createSpineController({ wasmPath, onServer })
-if (onServer) new EventSource('/__events')
+const pageEvents = onServer ? new EventSource('/__events') : null
 function serverLog(text) {
   if (onServer) navigator.sendBeacon('/__log', text)
 }
@@ -89,6 +89,9 @@ const customPanel = createCustomPanel({
     rename: (from, to) => picApi('/__pic/rename?from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to), { method: 'POST' }),
   },
 })
+const simplePatchDialog = $('simplepatch-dialog')
+$('simplepatch-cancel').addEventListener('click', () => simplePatchDialog.close())
+$('simplepatch-install').addEventListener('click', () => simplePatchDialog.close())
 function customMsg(text, error = false) {
   if (text) serverLog((error ? '错误：' : '') + text)
   $('custom-msg').textContent = text
@@ -105,7 +108,6 @@ async function onFilesReady() {
   curEmotion = null
   customPanel.setFiles(gf.pics)
   spineView.setFiles(gf)
-  $('mode-custom').hidden = !gf.picDir
   if (!gf.defs.length && !gf.others.length && !gf.picDir && !gf.spineBundles.length) {
     setStatus('没有找到游戏素材。请选择 StreamingAssets 或其中的素材文件夹。', true)
     el.tabs.replaceChildren()
@@ -121,6 +123,10 @@ async function onFilesReady() {
   await setMode(gf.defs.length ? 'person' : 'other')
 }
 function showCustom() {
+  if (!gf.picDir) {
+    if (!simplePatchDialog.open) simplePatchDialog.showModal()
+    return
+  }
   selectToken = {}
   spinePanel.hide()
   mode = 'custom'
@@ -161,8 +167,8 @@ async function setMode(m) {
 for (const b of Array.from(el.modes.children)) b.addEventListener('click', () => {
   const m = b.dataset.mode
   if (m === 'spine') return showSpine()
-  if (mode === m) return
   if (m === 'custom') return showCustom()
+  if (mode === m) return
   void setMode(m)
 })
 el.pick.addEventListener('click', async () => {
@@ -263,18 +269,41 @@ async function checkForUpdate() {
   $('update-page').href = u.url
   $('update-apply').hidden = !u.canSelfUpdate
   const msg = $('update-msg')
+  const progress = $('update-progress')
+  let updating = false
+  dlg.addEventListener('cancel', (event) => { if (updating) event.preventDefault() })
+  const showProgress = ({ phase, downloaded = 0, total = 0 }) => {
+    progress.hidden = false
+    if (total > 0) progress.value = Math.min(1, downloaded / total)
+    else progress.removeAttribute('value')
+    if (phase === 'installing') msg.textContent = '下载完成，正在安装…'
+    else if (phase === 'restarting') msg.textContent = '更新完成，正在重启…'
+    else {
+      const mb = (bytes) => (bytes / 1048576).toFixed(1) + ' MB'
+      msg.textContent = total > 0
+        ? `正在下载：${Math.min(100, Math.floor(downloaded / total * 100))}%（${mb(downloaded)} / ${mb(total)}）`
+        : `正在下载：${mb(downloaded)}`
+    }
+  }
   $('update-later').onclick = () => dlg.close()
   $('update-ignore').onclick = () => {
     void fetch('/__update/ignore?v=' + encodeURIComponent(u.latest), { method: 'POST' })
     dlg.close()
   }
   $('update-apply').onclick = async () => {
+    if (updating) return
+    updating = true
     for (const b of dlg.querySelectorAll('button')) b.disabled = true
     msg.classList.remove('error')
-    msg.textContent = '正在下载并安装，请稍候…'
+    msg.textContent = '正在连接下载…'
+    progress.hidden = false
+    progress.removeAttribute('value')
+    const onProgress = (event) => showProgress(JSON.parse(event.data))
+    pageEvents?.addEventListener('update-progress', onProgress)
     try {
       const r = await fetch('/__update/apply', { method: 'POST' })
       if (!r.ok) throw new Error((await r.json()).error)
+      progress.value = 1
       msg.textContent = '更新完成，正在重启…'
       for (let i = 0; i < 40; i++) {
         await new Promise((res) => setTimeout(res, 1000))
@@ -285,9 +314,13 @@ async function checkForUpdate() {
       }
       msg.textContent = '没能自动重启，请手动重新打开 VPicker。'
     } catch (e) {
+      progress.hidden = true
       msg.classList.add('error')
       msg.textContent = '更新失败：' + e.message
       for (const b of dlg.querySelectorAll('button')) b.disabled = false
+    } finally {
+      updating = false
+      pageEvents?.removeEventListener('update-progress', onProgress)
     }
   }
   dlg.showModal()

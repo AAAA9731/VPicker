@@ -22,7 +22,7 @@
   <nav id="modes" aria-label="内容类型" hidden>
     <button id="mode-person" type="button" class="mode" data-mode="person" aria-selected="true">立绘</button>
     <button id="mode-other" type="button" class="mode" data-mode="other">非立绘图片</button>
-    <button id="mode-custom" type="button" class="mode" data-mode="custom" title="检测到 StreamingAssets/SimplePatch_pic（SimplePatch 的 PicLoad 补丁）时出现" hidden>自定义图片</button>
+    <button id="mode-custom" type="button" class="mode" data-mode="custom" title="配合 SimplePatch 的 PicLoad 补丁使用">自定义图片</button>
     <button id="mode-spine" type="button" class="mode" data-mode="spine">Spine动画提取</button>
   </nav>
 
@@ -204,10 +204,21 @@
     </div>
   </dialog>
 
+  <dialog id="simplepatch-dialog" aria-labelledby="simplepatch-title" aria-describedby="simplepatch-description">
+    <h3 id="simplepatch-title">自定义图片需要 SimplePatch</h3>
+    <p id="simplepatch-description">没有找到 SimplePatch 的自定义图片目录。请先安装 SimplePatch，再加载游戏的 StreamingAssets 文件夹。</p>
+    <p>如果已经安装，请确认 PicLoad 补丁已开启，并在 StreamingAssets 中新建 <code>SimplePatch_pic</code> 文件夹。</p>
+    <div class="dlg-actions">
+      <button id="simplepatch-cancel" type="button" autofocus>取消</button>
+      <a id="simplepatch-install" href="https://github.com/AAAA9731/SimplePatch/releases/latest" target="_blank" rel="noopener noreferrer">前往安装 SimplePatch</a>
+    </div>
+  </dialog>
+
   <dialog id="update-dialog">
     <h3>发现新版本 <span id="update-ver"></span></h3>
     <p id="update-sub"></p>
     <pre id="update-notes"></pre>
+    <progress id="update-progress" max="1" aria-label="更新下载进度" aria-describedby="update-msg" hidden></progress>
     <p id="update-msg"></p>
     <div class="dlg-actions">
       <button id="update-apply" type="button">立即更新</button>

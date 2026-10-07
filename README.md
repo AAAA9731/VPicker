@@ -59,7 +59,7 @@ VPicker.exe --dir=D:\Game\AliceInCradle_Data\StreamingAssets
 
 ## 自定义图片（配合 SimplePatch）
 
-如果加载的文件夹里有 `SimplePatch_pic`（[SimplePatch](https://github.com/AAAA9731/SimplePatch) 的 PicLoad 补丁读取自定义 PNG 的文件夹），页面会多出一个「自定义图片」页。
+「自定义图片」配合 [SimplePatch](https://github.com/AAAA9731/SimplePatch) 的 PicLoad 补丁使用。加载游戏文件后，点击该页时若没有找到 `SimplePatch_pic` 文件夹，会提示安装 SimplePatch；点击「前往安装 SimplePatch」在新标签页打开下载页。安装补丁并准备好 `StreamingAssets/SimplePatch_pic` 文件夹后，重新加载游戏目录即可使用。
 
 - 左边列出文件夹里的 PNG，点选后放进 16:9 的游戏画面预览里摆位置。拖动图片改的是 `PIC_MV` 坐标；缩放只能从游戏真正支持的几档里选（`h` 标志，以及 `PIC_MVA ZOOM2/3/4` 对应的倍率）。
 - 窗口分辨率可以按游戏设置里的 15 种来选，窗口按该分辨率的真实像素大小显示，方便跟游戏窗口对着比位置。

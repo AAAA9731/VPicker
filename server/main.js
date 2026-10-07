@@ -2,15 +2,14 @@
 // 打包成 exe 时静态文件从 SEA 资源里读取；直接 `node server/main.js` 时读取 dist/。
 import http from 'node:http'
 import { exec, spawn, spawnSync } from 'node:child_process'
-import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { Readable } from 'node:stream'
-import { pipeline } from 'node:stream/promises'
+import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, dirname, extname, join, normalize, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getAsset, isSea } from 'node:sea'
 import { PXL_FILES as WANTED, SKIP_GAME_DIRS as SKIP_DIR, spineFileKey } from '../src/game-index.js'
 import { createVideoService } from './video.js'
+import { downloadUpdate } from './update-download.js'
 
 const APP = 'VPicker 游戏素材提取工具'
 const START_PORT = 5173
@@ -72,6 +71,13 @@ const assetName = process.platform === 'win32' ? 'VPicker.exe' : process.platfor
 // 只有打包后的 Windows exe 才能原地替换自己；其他情况只提示并给出下载页
 const canSelfUpdate = isSea() && process.platform === 'win32'
 let updateCache = null
+let applyingUpdate = false
+let updateProgress = null
+function reportUpdateProgress(value) {
+  updateProgress = value
+  const event = `event: update-progress\ndata: ${JSON.stringify(value)}\n\n`
+  for (const client of clients) client.write(event)
+}
 async function checkUpdate() {
   if (updateCache && Date.now() - updateCache.at < 3600_000) return updateCache.info
   const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
@@ -90,6 +96,7 @@ async function checkUpdate() {
     url: j.html_url,
     canSelfUpdate: canSelfUpdate && !!asset,
     assetUrl: asset?.browser_download_url ?? null,
+    assetSize: asset?.size ?? 0,
     ignored: loadConfig().ignoredVersion === latest,
   }
   updateCache = { at: Date.now(), info }
@@ -103,13 +110,16 @@ async function applyUpdate() {
   const exe = process.execPath
   const tmp = exe + '.new'
   log('更新', `正在下载 ${info.latest} …`, C.cyan)
-  const r = await fetch(info.assetUrl, { redirect: 'follow', headers: { 'user-agent': 'VPicker-updater' } })
-  if (!r.ok || !r.body) throw new Error('下载失败：' + r.status)
-  await pipeline(Readable.fromWeb(r.body), createWriteStream(tmp))
-  if (statSync(tmp).size < 1024 * 1024) {
+  reportUpdateProgress({ phase: 'downloading', downloaded: 0, total: info.assetSize })
+  const downloaded = await downloadUpdate(info.assetUrl, tmp, {
+    size: info.assetSize,
+    onProgress: (value) => reportUpdateProgress({ phase: 'downloading', ...value }),
+  })
+  if (downloaded < 1024 * 1024) {
     rmSync(tmp, { force: true })
     throw new Error('下载的文件不完整')
   }
+  reportUpdateProgress({ phase: 'installing', downloaded, total: downloaded })
   removeOld()
   renameSync(exe, exe + '.old') // Windows 允许重命名正在运行的 exe
   try {
@@ -119,6 +129,7 @@ async function applyUpdate() {
     throw e
   }
   log('更新', `已更新到 ${info.latest}，正在重启…`, C.green)
+  reportUpdateProgress({ phase: 'restarting', downloaded, total: downloaded })
 }
 function restartSelf() {
   const child = spawn(process.execPath, ['--no-open', '--restart', `--port=${server.address().port}`], { detached: true, stdio: 'ignore' })
@@ -264,12 +275,17 @@ const server = http.createServer((req, res) => {
     return void res.writeHead(204).end()
   }
   if (url.pathname === '/__update/apply' && req.method === 'POST') {
+    if (applyingUpdate) return sendJson(res, 409, { error: '已有更新正在下载或安装' })
+    applyingUpdate = true
+    updateProgress = null
     applyUpdate().then(
       () => {
         sendJson(res, 200, { ok: true })
         res.on('finish', () => setTimeout(restartSelf, 300))
       },
       (e) => {
+        applyingUpdate = false
+        updateProgress = null
         log('更新', '失败：' + e.message, C.red)
         sendJson(res, 500, { error: e.message })
       }
@@ -361,6 +377,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname === '/__events') {
     res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache', connection: 'keep-alive' })
     res.write(':ok\n\n')
+    if (applyingUpdate && updateProgress) res.write(`event: update-progress\ndata: ${JSON.stringify(updateProgress)}\n\n`)
     const ping = setInterval(() => res.write(':ping\n\n'), 15000)
     clients.add(res)
     onClientsChanged()
