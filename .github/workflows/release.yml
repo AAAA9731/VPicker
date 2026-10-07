@@ -11,6 +11,7 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: windows-x64
@@ -30,6 +31,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: 构建可分发的 ARM64 FFmpeg
+        if: matrix.name == 'macos-arm64'
+        shell: bash
+        run: bash scripts/build-ffmpeg-macos-arm64.sh
       # 版本号以标签为准，exe 靠它判断有没有新版本
       - run: npm version --no-git-tag-version --allow-same-version "${GITHUB_REF_NAME#v}"
         shell: bash
@@ -39,6 +44,12 @@ jobs:
         with:
           name: VPicker-${{ matrix.name }}
           path: ${{ matrix.artifact }}
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.name == 'macos-arm64'
+        with:
+          name: FFmpeg-macos-arm64-sources
+          path: release/FFmpeg-macos-arm64-sources.tar.gz
 
   publish:
     needs: build

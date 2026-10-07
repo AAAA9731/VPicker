@@ -100,7 +100,8 @@ export function createSpineController({ wasmPath, onServer }) {
       $('spine-skin').value = '0'; $('spine-skin-options').open = false; applySkinProfile()
       canvas.hidden = false; $('spine-placeholder').hidden = true
       resetAnimation(); loading = false; busy(false); list()
-      state(`${entry.name} · ${resource.rig.animations.length} 个动作。独立兼容预览；游戏脚本中的动作混合、背景和特效需另行制作。`)
+      const partCount = resource.rig.skins.filter((item) => item.name !== 'default').length
+      state(`${entry.name} · ${resource.rig.animations.length} 个动画片段 · ${partCount} 个部件`)
     } catch (error) {
       if (token !== generation || !active) return
       renderer?.dispose(); renderer = null; resource = null

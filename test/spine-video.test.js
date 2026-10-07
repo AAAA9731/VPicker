@@ -46,7 +46,7 @@ describe.skipIf(!existsSync(ffmpeg))('FFmpeg 视频服务集成', () => {
   const post = (path, value = {}) => fetch(url + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(value) })
   it.each(['mp4', 'webm'])('实际编码 %s，固定四帧，方向及颜色正确', async (format) => {
     const created = await post('/__video/create', { width: 1280, height: 720, fps: 30, frames: 4, format })
-    expect(created.status).toBe(201)
+    expect(created.status, created.status === 201 ? '' : await created.text()).toBe(201)
     const { id } = await created.json()
     const pixels = Buffer.alloc(1280 * 720 * 4)
     for (let y = 0; y < 720; y++) for (let x = 0; x < 1280; x++) {
@@ -57,10 +57,10 @@ describe.skipIf(!existsSync(ffmpeg))('FFmpeg 视频服务集成', () => {
     expect((await post(`/__video/${id}/finish`)).status).toBe(400)
     for (let i = 0; i < 4; i++) {
       const frame = await fetch(`${url}/__video/${id}/frame?index=${i}`, { method: 'POST', body: pixels })
-      expect(frame.status).toBe(200)
+      expect(frame.status, frame.status === 200 ? '' : await frame.text()).toBe(200)
     }
     const completed = await post(`/__video/${id}/finish`)
-    expect(completed.status).toBe(200)
+    expect(completed.status, completed.status === 200 ? '' : await completed.text()).toBe(200)
     const result = await completed.json()
     expect(result.frames).toBe(4)
     expect(result.duration).toBeCloseTo(4 / 30)

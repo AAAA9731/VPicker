@@ -94,6 +94,8 @@ npm run build:exe  # 打包单文件程序到 release/（Windows 出 exe，macOS
 
 打包需要静态 FFmpeg，并且要带 `libx264` 和 `libvpx-vp9` 编码器，不能是 `nonfree` 的构建。想用自己的 FFmpeg，用 `FFMPEG_PATH` 指定二进制，同时必须用 `FFMPEG_NOTICE_PATH` 提供与该二进制匹配的许可证和源码信息。
 
+macOS Apple Silicon 的打包使用源码构建的 FFmpeg（`ffmpeg-static` 的 ARM64 二进制带 `nonfree`）。CI 会自动运行 `bash scripts/build-ffmpeg-macos-arm64.sh`，并将生成的二进制用于视频测试和打包；本机构建时先运行该脚本，再将 `FFMPEG_PATH` 和 `FFMPEG_NOTICE_PATH` 分别设为 `build/ffmpeg-macos-arm64/install/bin/ffmpeg` 和 `build/ffmpeg-macos-arm64/install/NOTICE.txt`。对应源码与构建脚本随 Release 提供。
+
 推送到 `main` 会触发 CI，在 Windows 和 macOS（arm64 / x64）上测试、构建并做启动冒烟测试；推 `v*` 标签会把三个平台的程序发布到 Releases。
 
 网页在 Chrome、Edge、Safari 等现代浏览器上都能用。Safari 没有目录选择对话框，会改用普通的文件夹选择框。
