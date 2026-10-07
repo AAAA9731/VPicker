@@ -3,6 +3,8 @@ import { getEmotInfo } from './pxl/person'
 import { buildPic, locatePic, parsePicLine } from './pic'
 import { drawFaceThumb, drawPose } from './render'
 import { createCustomPanel } from './custom'
+import { createSpinePanel } from './spine'
+import { createSpineController } from './spine/controller'
 import { collectAllPoses, collectByEmotion, collectByPose, collectFrameRun, makeZip, safeFileName } from './batch'
 const $ = (id) => document.getElementById(id)
 const el = {
@@ -43,8 +45,9 @@ let gf = new GameFiles()
 const loaded = new Map()
 const loading = new Map()
 let curKey = ''
-/** 'person' 立绘 / 'other' 非立绘图片（事件 CG、UI、小游戏素材等） */
+/** 'person' 立绘 / 'other' 非立绘图片 / 'custom' 自定义图片 / 'spine' 动画视频 */
 let mode = 'person'
+const spinePanel = createSpinePanel({ onEnter: () => void spineView.enter(), onHide: () => spineView.hide() })
 const curDefs = () => (mode === 'other' ? gf.others : gf.defs)
 const findDef = (key) => gf.defs.find((d) => d.key === key) ?? gf.others.find((d) => d.key === key)
 let curPose = null
@@ -53,6 +56,7 @@ let curEmotion = null
 const emotMemory = new Map()
 // 运行在 exe 自带的本地服务器上时：保持一个心跳连接（关闭标签页后服务器会自动退出），并把状态同步到命令行窗口
 const onServer = !!document.querySelector('meta[name="aic-server"]')
+const spineView = createSpineController({ wasmPath, onServer })
 if (onServer) new EventSource('/__events')
 function serverLog(text) {
   if (onServer) navigator.sendBeacon('/__log', text)
@@ -100,28 +104,46 @@ async function onFilesReady() {
   curPose = null
   curEmotion = null
   customPanel.setFiles(gf.pics)
+  spineView.setFiles(gf)
   $('mode-custom').hidden = !gf.picDir
-  if (!gf.defs.length && !gf.others.length && !gf.picDir) {
-    setStatus('没有找到 *.pxls.dat。请选择 StreamingAssets 或其中的 EvImg 文件夹。', true)
+  if (!gf.defs.length && !gf.others.length && !gf.picDir && !gf.spineBundles.length) {
+    setStatus('没有找到游戏素材。请选择 StreamingAssets 或其中的素材文件夹。', true)
     el.tabs.replaceChildren()
     el.modes.hidden = true
     el.stage.hidden = true
+    $('custom').hidden = true
+    spinePanel.hide()
     return
   }
-  setStatus(`找到 ${gf.defs.length} 个角色立绘包、${gf.others.length} 个非立绘图片包` + (gf.picDir ? `、${gf.pics.size} 张自定义图片（SimplePatch_pic）。` : '。'))
-  el.modes.hidden = !gf.others.length && !gf.picDir
-  if (!gf.defs.length && !gf.others.length) return showCustom()
+  setStatus(`找到 ${gf.defs.length} 个角色立绘包、${gf.others.length} 个非立绘图片包、${gf.spineBundles.length} 个动画资源包` + (gf.picDir ? `、${gf.pics.size} 张自定义图片（SimplePatch_pic）。` : '。'))
+  el.modes.hidden = false
+  if (!gf.defs.length && !gf.others.length) return gf.picDir ? showCustom() : showSpine()
   await setMode(gf.defs.length ? 'person' : 'other')
 }
 function showCustom() {
+  selectToken = {}
+  spinePanel.hide()
   mode = 'custom'
   for (const b of Array.from(el.modes.children)) b.setAttribute('aria-selected', String(b.dataset.mode === 'custom'))
   el.tabs.replaceChildren()
   el.stage.hidden = true
   $('custom').hidden = false
 }
-function applyMode(m) {
+function showSpine() {
+  if (el.modes.hidden) return
+  selectToken = {}
+  mode = 'spine'
+  for (const b of Array.from(el.modes.children)) b.setAttribute('aria-selected', String(b.dataset.mode === 'spine'))
+  el.tabs.replaceChildren()
+  el.stage.hidden = true
   $('custom').hidden = true
+  spinePanel.open()
+}
+function applyMode(m) {
+  selectToken = {}
+  spinePanel.hide()
+  $('custom').hidden = true
+  el.stage.hidden = true
   mode = m
   el.stage.classList.toggle('other', m === 'other')
   document.querySelector(`input[name="batch-mode"][value="${m === 'other' ? 'run' : 'emotion'}"]`).checked = true
@@ -136,7 +158,13 @@ async function setMode(m) {
   curEmotion = null
   await selectPerson(defs.find((d) => d.key === 'n')?.key ?? defs[0].key)
 }
-for (const b of Array.from(el.modes.children)) b.addEventListener('click', () => mode !== b.dataset.mode && (b.dataset.mode === 'custom' ? showCustom() : void setMode(b.dataset.mode)))
+for (const b of Array.from(el.modes.children)) b.addEventListener('click', () => {
+  const m = b.dataset.mode
+  if (m === 'spine') return showSpine()
+  if (mode === m) return
+  if (m === 'custom') return showCustom()
+  void setMode(m)
+})
 el.pick.addEventListener('click', async () => {
   if ('showDirectoryPicker' in window) {
     try {

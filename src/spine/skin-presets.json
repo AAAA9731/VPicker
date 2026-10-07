@@ -1,0 +1,3016 @@
+{
+  "SpineAnim/damage_a.atlas.dat/damage_a": [
+    {
+      "name": "dmga",
+      "skins": [
+        "default",
+        "no_lowhp"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "lowhp",
+            "no_lowhp"
+          ],
+          "initial": "no_lowhp"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_b.atlas.dat/damage_b": [
+    {
+      "name": "dmgb",
+      "skins": [
+        "default",
+        "no_lowhp"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "lowhp",
+            "no_lowhp"
+          ],
+          "initial": "no_lowhp"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/hipdown.atlas.dat/hipdown": [
+    {
+      "name": "torture_slime_0",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "torture_hipdown",
+      "skins": [
+        "default",
+        "foxinject"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "foxinject"
+          ],
+          "initial": "foxinject"
+        }
+      ]
+    },
+    {
+      "name": "hipdown_b",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "hipdown_b_og",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "hipdown_b_lh",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "hipdown_b_lm",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "hipdown_b_lhm",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "hipdown_dead",
+      "skins": [
+        "default",
+        "main"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "main"
+          ],
+          "initial": "main"
+        }
+      ]
+    },
+    {
+      "name": "web_trapped_down_0",
+      "skins": [
+        "default",
+        "web_trapped",
+        "other/betobeto"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "web_trapped"
+          ],
+          "initial": "web_trapped"
+        },
+        {
+          "id": "1",
+          "names": [
+            "other/betobeto"
+          ],
+          "initial": "other/betobeto"
+        }
+      ]
+    },
+    {
+      "name": "web_trapped_down_1",
+      "skins": [
+        "default",
+        "web_trapped",
+        "other/betobeto"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "web_trapped"
+          ],
+          "initial": "web_trapped"
+        },
+        {
+          "id": "1",
+          "names": [
+            "other/betobeto"
+          ],
+          "initial": "other/betobeto"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_gas.atlas.dat/damage_gas": [
+    {
+      "name": "damage_gas",
+      "skins": [
+        "default",
+        "arm33",
+        "cloth/a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm33",
+            "arm11",
+            "arm12",
+            "arm13",
+            "arm23",
+            "arm31",
+            "arm22",
+            "arm21"
+          ],
+          "initial": "arm33"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/a",
+            "cloth/b"
+          ],
+          "initial": "cloth/a"
+        }
+      ]
+    },
+    {
+      "name": "damage_syabon",
+      "skins": [
+        "default",
+        "arm11",
+        "cloth/a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm11",
+            "arm13",
+            "arm12",
+            "arm21",
+            "arm22"
+          ],
+          "initial": "arm11"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/a",
+            "cloth/b"
+          ],
+          "initial": "cloth/a"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/stand_weak.atlas.dat/stand_weak": [
+    {
+      "name": "s_weak_lowmp",
+      "skins": [
+        "default",
+        "arm1A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm2A",
+            "arm1A",
+            "arm3A"
+          ],
+          "initial": "arm1A"
+        }
+      ]
+    },
+    {
+      "name": "s_weak_lowhp_battle",
+      "skins": [
+        "default",
+        "arm1A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm2A",
+            "arm1A",
+            "arm3A"
+          ],
+          "initial": "arm1A"
+        }
+      ]
+    },
+    {
+      "name": "s_weak_lowhp",
+      "skins": [
+        "default",
+        "arm1A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm2A",
+            "arm1A",
+            "arm3A"
+          ],
+          "initial": "arm1A"
+        }
+      ]
+    },
+    {
+      "name": "stand_babydall0",
+      "skins": [
+        "default",
+        "arm_bd2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_bd2"
+          ],
+          "initial": "arm_bd2"
+        }
+      ]
+    },
+    {
+      "name": "stand_babydall_weak",
+      "skins": [
+        "default",
+        "arm_bd3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_bd3"
+          ],
+          "initial": "arm_bd3"
+        }
+      ]
+    },
+    {
+      "name": "stand_weak_osgm",
+      "skins": [
+        "default",
+        "arm2A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm2A",
+            "arm2A_bote"
+          ],
+          "initial": "arm2A"
+        }
+      ]
+    },
+    {
+      "name": "stand_weak_osgm_torned",
+      "skins": [
+        "default",
+        "arm2A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm2A",
+            "arm2A_bote"
+          ],
+          "initial": "arm2A"
+        }
+      ]
+    },
+    {
+      "name": "s_gas_applied",
+      "skins": [
+        "default",
+        "armGas_A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "armGas_A",
+            "armGas_B"
+          ],
+          "initial": "armGas_A"
+        }
+      ]
+    },
+    {
+      "name": "s_gas_applied_b",
+      "skins": [
+        "default",
+        "armGas_A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "armGas_A",
+            "armGas_B"
+          ],
+          "initial": "armGas_A"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_bdown.atlas.dat/damage_bdown": [
+    {
+      "name": "bdown",
+      "skins": [
+        "default",
+        "arm_11"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_21",
+            "arm_11",
+            "arm_22",
+            "arm_14"
+          ],
+          "initial": "arm_11"
+        }
+      ]
+    },
+    {
+      "name": "bdown_stunned",
+      "skins": [
+        "default",
+        "arm_11"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_21",
+            "arm_11",
+            "arm_22",
+            "arm_14"
+          ],
+          "initial": "arm_11"
+        }
+      ]
+    },
+    {
+      "name": "sleep",
+      "skins": [
+        "default",
+        "arm_22"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_22"
+          ],
+          "initial": "arm_22"
+        }
+      ]
+    },
+    {
+      "name": "bdown_lowmp",
+      "skins": [
+        "default",
+        "arm_11"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_21",
+            "arm_11",
+            "arm_22",
+            "arm_14"
+          ],
+          "initial": "arm_11"
+        }
+      ]
+    },
+    {
+      "name": "egg_down_0",
+      "skins": [
+        "default",
+        "arm_egg"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_egg"
+          ],
+          "initial": "arm_egg"
+        }
+      ]
+    },
+    {
+      "name": "egg_down_1",
+      "skins": [
+        "default",
+        "arm_egg"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_egg"
+          ],
+          "initial": "arm_egg"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_fdown.atlas.dat/damage_fdown": [
+    {
+      "name": "fdown",
+      "skins": [
+        "default",
+        "Rarm/armB2",
+        "leg/leg0"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "Rarm/armD",
+            "Rarm/armA",
+            "Rarm/armB1",
+            "Rarm/armB2"
+          ],
+          "initial": "Rarm/armB2"
+        },
+        {
+          "id": "3",
+          "names": [
+            "leg/leg0",
+            "leg/ssp"
+          ],
+          "initial": "leg/leg0"
+        }
+      ]
+    },
+    {
+      "name": "fdown_dm",
+      "skins": [
+        "default",
+        "Rarm/armB2",
+        "leg/leg0"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "Rarm/armD",
+            "Rarm/armA",
+            "Rarm/armB1",
+            "Rarm/armB2"
+          ],
+          "initial": "Rarm/armB2"
+        },
+        {
+          "id": "3",
+          "names": [
+            "leg/leg_mprow_dead",
+            "leg/leg0",
+            "leg/ssp"
+          ],
+          "initial": "leg/leg0"
+        }
+      ]
+    },
+    {
+      "name": "fdown_dmh",
+      "skins": [
+        "default",
+        "Rarm/armB2",
+        "leg/leg0",
+        "pants_injured"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "Rarm/armD",
+            "Rarm/armA",
+            "Rarm/armB1",
+            "Rarm/armB2"
+          ],
+          "initial": "Rarm/armB2"
+        },
+        {
+          "id": "3",
+          "names": [
+            "leg/leg_mprow_dead",
+            "leg/leg0",
+            "leg/ssp"
+          ],
+          "initial": "leg/leg0"
+        },
+        {
+          "id": "4",
+          "names": [
+            "pants_injured"
+          ],
+          "initial": "pants_injured"
+        }
+      ]
+    },
+    {
+      "name": "bsspider",
+      "skins": [
+        "default",
+        "Rarm/armB1",
+        "leg/leg_mprow_dead"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "Rarm/armB1"
+          ],
+          "initial": "Rarm/armB1"
+        },
+        {
+          "id": "3",
+          "names": [
+            "leg/leg_mprow_dead",
+            "leg/spider_ssp"
+          ],
+          "initial": "leg/leg_mprow_dead"
+        },
+        {
+          "id": "4",
+          "names": [
+            "pants_injured"
+          ],
+          "initial": ""
+        },
+        {
+          "id": "10",
+          "names": [
+            "bsspider"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "wetten",
+      "skins": [
+        "default",
+        "Rarm/armD",
+        "pee",
+        "leg/leg_mprow_dead"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "Rarm/armD",
+            "Rarm/armA"
+          ],
+          "initial": "Rarm/armD"
+        },
+        {
+          "id": "1",
+          "names": [
+            "pee"
+          ],
+          "initial": "pee"
+        },
+        {
+          "id": "3",
+          "names": [
+            "leg/leg_mprow_dead",
+            "leg/ssp"
+          ],
+          "initial": "leg/leg_mprow_dead"
+        }
+      ]
+    },
+    {
+      "name": "wetten_dmh",
+      "skins": [
+        "default",
+        "Rarm/armD",
+        "pee",
+        "leg/leg_mprow_dead",
+        "pants_injured"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "Rarm/armD",
+            "Rarm/armA"
+          ],
+          "initial": "Rarm/armD"
+        },
+        {
+          "id": "1",
+          "names": [
+            "pee"
+          ],
+          "initial": "pee"
+        },
+        {
+          "id": "3",
+          "names": [
+            "leg/leg_mprow_dead",
+            "leg/ssp"
+          ],
+          "initial": "leg/leg_mprow_dead"
+        },
+        {
+          "id": "4",
+          "names": [
+            "pants_injured"
+          ],
+          "initial": "pants_injured"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_sucknew.atlas.dat/damage_sucknew": [
+    {
+      "name": "wetten_milk",
+      "skins": [
+        "default",
+        "cloth/A"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth/A",
+            "cloth/B"
+          ],
+          "initial": "cloth/A"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_crouch.atlas.dat/damage_crouch": [
+    {
+      "name": "crouch",
+      "skins": [
+        "default",
+        "arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm1"
+          ],
+          "initial": "arm1"
+        }
+      ]
+    },
+    {
+      "name": "crouch_mprow",
+      "skins": [
+        "default",
+        "arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm1"
+          ],
+          "initial": "arm1"
+        }
+      ]
+    },
+    {
+      "name": "tentacle_crouch_0",
+      "skins": [
+        "default",
+        "arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm2"
+          ],
+          "initial": "arm2"
+        }
+      ]
+    },
+    {
+      "name": "tentacle_crouch_1",
+      "skins": [
+        "default",
+        "arm3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm3"
+          ],
+          "initial": "arm3"
+        }
+      ]
+    },
+    {
+      "name": "crouch_wetten",
+      "skins": [
+        "default",
+        "arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm1"
+          ],
+          "initial": "arm1"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_worm.atlas.dat/damage_worm": [
+    {
+      "name": "worm",
+      "skins": [
+        "default",
+        "skin_worm/tentacle"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "skin_worm/tentacle"
+          ],
+          "initial": "skin_worm/tentacle"
+        }
+      ]
+    },
+    {
+      "name": "torture_drilln",
+      "skins": [
+        "default",
+        "skin_worm/nusi_tentacle"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "skin_worm/nusi_tentacle"
+          ],
+          "initial": "skin_worm/nusi_tentacle"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_frog.atlas.dat/damage_frog": [
+    {
+      "name": "tentacle_2",
+      "skins": [
+        "default",
+        "a2_foot1_mentai"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "a2_foot1_mentai"
+          ],
+          "initial": "a2_foot1_mentai"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_behind.atlas.dat/damage_behind": [
+    {
+      "name": "dmg_burned",
+      "skins": [
+        "default",
+        "arm_R2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_R2"
+          ],
+          "initial": "arm_R2"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_horse.atlas.dat/damage_horse": [
+    {
+      "name": "dmg_thunder",
+      "skins": [
+        "default",
+        "arm33",
+        "cloth/a",
+        "f/m1",
+        "other/elec"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm33"
+          ],
+          "initial": "arm33"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/b",
+            "cloth/a"
+          ],
+          "initial": "cloth/a"
+        },
+        {
+          "id": "2",
+          "names": [
+            "f/m1"
+          ],
+          "initial": "f/m1"
+        },
+        {
+          "id": "3",
+          "names": [
+            "other/elec"
+          ],
+          "initial": "other/elec"
+        }
+      ]
+    },
+    {
+      "name": "dmg_thunder_s",
+      "skins": [
+        "default",
+        "arm33",
+        "cloth/a",
+        "f/m1",
+        "other/elec"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm33"
+          ],
+          "initial": "arm33"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/b",
+            "cloth/a"
+          ],
+          "initial": "cloth/a"
+        },
+        {
+          "id": "2",
+          "names": [
+            "f/m1"
+          ],
+          "initial": "f/m1"
+        },
+        {
+          "id": "3",
+          "names": [
+            "other/elec"
+          ],
+          "initial": "other/elec"
+        }
+      ]
+    },
+    {
+      "name": "damage_torture_snake_0",
+      "skins": [
+        "default",
+        "arm_snake_bind",
+        "cloth/a",
+        "f/m2",
+        "other/snake_bind"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_snake_bind"
+          ],
+          "initial": "arm_snake_bind"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/b",
+            "cloth/a"
+          ],
+          "initial": "cloth/a"
+        },
+        {
+          "id": "2",
+          "names": [
+            "f/m2"
+          ],
+          "initial": "f/m2"
+        },
+        {
+          "id": "3",
+          "names": [
+            "other/snake_bind"
+          ],
+          "initial": "other/snake_bind"
+        }
+      ]
+    },
+    {
+      "name": "damage_torture_snake_1",
+      "skins": [
+        "default",
+        "arm_snake_bind",
+        "cloth/a",
+        "f/m2",
+        "other/snake_bind_B"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_snake_bind"
+          ],
+          "initial": "arm_snake_bind"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/b",
+            "cloth/a"
+          ],
+          "initial": "cloth/a"
+        },
+        {
+          "id": "2",
+          "names": [
+            "f/m2"
+          ],
+          "initial": "f/m2"
+        },
+        {
+          "id": "3",
+          "names": [
+            "other/snake_bind_B"
+          ],
+          "initial": "other/snake_bind_B"
+        }
+      ]
+    },
+    {
+      "name": "damage_leechvore_0",
+      "skins": [
+        "default",
+        "arm22",
+        "cloth/a",
+        "f/m1",
+        "other/marunomi"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm33",
+            "arm22"
+          ],
+          "initial": "arm22"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/b",
+            "cloth/a"
+          ],
+          "initial": "cloth/a"
+        },
+        {
+          "id": "2",
+          "names": [
+            "f/m1"
+          ],
+          "initial": "f/m1"
+        },
+        {
+          "id": "3",
+          "names": [
+            "other/marunomi"
+          ],
+          "initial": "other/marunomi"
+        }
+      ]
+    },
+    {
+      "name": "damage_leechvore_1",
+      "skins": [
+        "default",
+        "arm22",
+        "cloth/a",
+        "f/m1",
+        "other/marunomi"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm33",
+            "arm22"
+          ],
+          "initial": "arm22"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cloth/b",
+            "cloth/a"
+          ],
+          "initial": "cloth/a"
+        },
+        {
+          "id": "2",
+          "names": [
+            "f/m1"
+          ],
+          "initial": "f/m1"
+        },
+        {
+          "id": "3",
+          "names": [
+            "other/marunomi"
+          ],
+          "initial": "other/marunomi"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_m.atlas.dat/damage_m": [
+    {
+      "name": "masturbate_1",
+      "skins": [
+        "default",
+        "arm44"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm44"
+          ],
+          "initial": "arm44"
+        }
+      ]
+    },
+    {
+      "name": "masturb_1to3",
+      "skins": [
+        "default",
+        "arm45"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm45"
+          ],
+          "initial": "arm45"
+        }
+      ]
+    },
+    {
+      "name": "masturbate_3",
+      "skins": [
+        "default",
+        "arm45"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm45"
+          ],
+          "initial": "arm45"
+        }
+      ]
+    },
+    {
+      "name": "masturbate_4",
+      "skins": [
+        "default",
+        "arm55"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm55"
+          ],
+          "initial": "arm55"
+        }
+      ]
+    },
+    {
+      "name": "masturbate_5",
+      "skins": [
+        "default",
+        "arm55"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm55"
+          ],
+          "initial": "arm55"
+        }
+      ]
+    },
+    {
+      "name": "masturbate_orgasm",
+      "skins": [
+        "default",
+        "arm57"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm57"
+          ],
+          "initial": "arm57"
+        }
+      ]
+    },
+    {
+      "name": "torture_golem_inject",
+      "skins": [
+        "default",
+        "arm_inject_12"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm_inject_12",
+            "arm_inject_13"
+          ],
+          "initial": "arm_inject_12"
+        }
+      ]
+    },
+    {
+      "name": "web_trapped_crouch_0",
+      "skins": [
+        "default",
+        "arm11",
+        "other/betobeto"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm11"
+          ],
+          "initial": "arm11"
+        },
+        {
+          "id": "1",
+          "names": [
+            "other/betobeto"
+          ],
+          "initial": "other/betobeto"
+        }
+      ]
+    },
+    {
+      "name": "web_trapped_crouch_1",
+      "skins": [
+        "default",
+        "arm11",
+        "other/betobeto"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm11"
+          ],
+          "initial": "arm11"
+        },
+        {
+          "id": "1",
+          "names": [
+            "other/betobeto"
+          ],
+          "initial": "other/betobeto"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_shrimp.atlas.dat/damage_shrimp": [
+    {
+      "name": "torture_groundbury",
+      "skins": [
+        "default",
+        "groundbury"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "groundbury"
+          ],
+          "initial": "groundbury"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_ketsudasi.atlas.dat/damage_ketsudasi": [
+    {
+      "name": "damage_torture_ketsudasi_0",
+      "skins": [
+        "default"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "skin_injection"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "damage_torture_ketsudasi_1",
+      "skins": [
+        "default"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "skin_injection"
+          ],
+          "initial": ""
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_mkb.atlas.dat/damage_mkb": [
+    {
+      "name": "damage_mkb_m0",
+      "skins": [
+        "default",
+        "strider/mkb",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "strider/mkb"
+          ],
+          "initial": "strider/mkb"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1",
+            "arm/arm2"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "damage_mkb_m_acme",
+      "skins": [
+        "default",
+        "strider/mkb_acme",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "strider/mkb_acme"
+          ],
+          "initial": "strider/mkb_acme"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1",
+            "arm/arm2"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "damage_mkb_urchin",
+      "skins": [
+        "default",
+        "strider/urchin",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "strider/urchin"
+          ],
+          "initial": "strider/urchin"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1",
+            "arm/arm2"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "stride_rope0",
+      "skins": [
+        "default",
+        "arm/arm3",
+        "strider/rope"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        },
+        {
+          "id": "1",
+          "names": [
+            "strider/rope"
+          ],
+          "initial": "strider/rope"
+        }
+      ]
+    },
+    {
+      "name": "stride_rope1",
+      "skins": [
+        "default",
+        "arm/arm3",
+        "strider/rope"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        },
+        {
+          "id": "1",
+          "names": [
+            "strider/rope"
+          ],
+          "initial": "strider/rope"
+        }
+      ]
+    },
+    {
+      "name": "damage_rope1",
+      "skins": [
+        "default",
+        "arm/arm3",
+        "strider/rope"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        },
+        {
+          "id": "1",
+          "names": [
+            "strider/rope"
+          ],
+          "initial": "strider/rope"
+        }
+      ]
+    },
+    {
+      "name": "rope_orgasm",
+      "skins": [
+        "default",
+        "arm/arm3",
+        "strider/rope"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        },
+        {
+          "id": "1",
+          "names": [
+            "strider/rope"
+          ],
+          "initial": "strider/rope"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_romero.atlas.dat/damage_romero": [
+    {
+      "name": "damage_romero",
+      "skins": [
+        "default",
+        "romero",
+        "arm/a1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "romero"
+          ],
+          "initial": "romero"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/a1"
+          ],
+          "initial": "arm/a1"
+        }
+      ]
+    },
+    {
+      "name": "torture_drilln_2",
+      "skins": [
+        "default",
+        "nusi_torture",
+        "arm/a2_nusi_torture"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "nusi_torture"
+          ],
+          "initial": "nusi_torture"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/a2_nusi_torture"
+          ],
+          "initial": "arm/a2_nusi_torture"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_swallowed.atlas.dat/damage_swallowed": [
+    {
+      "name": "damage_swallowed",
+      "skins": [
+        "default",
+        "arm/a2",
+        "meatwall/a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "arm/a2"
+          ],
+          "initial": "arm/a2"
+        },
+        {
+          "id": "1",
+          "names": [
+            "meatwall/a"
+          ],
+          "initial": "meatwall/a"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/cuts_cow_1.atlas.dat/cuts_cow_1": [
+    {
+      "name": "cuts_cow_1_prepare",
+      "skins": [
+        "default",
+        "cow"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cow",
+            "cow_L"
+          ],
+          "initial": "cow"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cow"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "cuts_cow_1_prepare_ssp",
+      "skins": [
+        "default",
+        "cow"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cow",
+            "cow_L"
+          ],
+          "initial": "cow"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cow"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "cuts_cow_1_licked",
+      "skins": [
+        "default",
+        "cow"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cow",
+            "cow_L"
+          ],
+          "initial": "cow"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cow"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "cuts_cow_1_licked_ssp",
+      "skins": [
+        "default",
+        "cow"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cow",
+            "cow_L"
+          ],
+          "initial": "cow"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cow"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "cuts_cow_1_licked2",
+      "skins": [
+        "default",
+        "cow"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cow",
+            "cow_L"
+          ],
+          "initial": "cow"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cow"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "cuts_cow_1_licked2_ssp",
+      "skins": [
+        "default",
+        "cow"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cow",
+            "cow_L"
+          ],
+          "initial": "cow"
+        },
+        {
+          "id": "1",
+          "names": [
+            "cow"
+          ],
+          "initial": ""
+        }
+      ]
+    }
+  ],
+  "SpineAnim/cuts_peeremove.atlas.dat/cuts_peeremove": [
+    {
+      "name": "cuts_peeremove_0",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_1",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_s_pee",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_se",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm4"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm4"
+          ],
+          "initial": "arm/arm4"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_f1",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_f2",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm1"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm1"
+          ],
+          "initial": "arm/arm1"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_f_pee",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_fe",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_n_pee",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        }
+      ]
+    },
+    {
+      "name": "cuts_peeremove_ne",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_0",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm3"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm3"
+          ],
+          "initial": "arm/arm3"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_1",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm2"
+          ],
+          "initial": "arm/arm2"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_2",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm2"
+          ],
+          "initial": "arm/arm2"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_i0",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm2"
+          ],
+          "initial": "arm/arm2"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_i1",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm2"
+          ],
+          "initial": "arm/arm2"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_i2",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm2"
+          ],
+          "initial": "arm/arm2"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_e1",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm2"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm2"
+          ],
+          "initial": "arm/arm2"
+        }
+      ]
+    },
+    {
+      "name": "cuts_eggremove_e2",
+      "skins": [
+        "default",
+        "clothA",
+        "arm/arm3_vib"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "clothB",
+            "clothA"
+          ],
+          "initial": "clothA"
+        },
+        {
+          "id": "1",
+          "names": [
+            "arm/arm3_vib"
+          ],
+          "initial": "arm/arm3_vib"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_press.atlas.dat/damage_press": [
+    {
+      "name": "damage_press_0",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_a"
+          ],
+          "initial": "emo_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_0r",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_a"
+          ],
+          "initial": "emo_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_0b",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_a"
+          ],
+          "initial": "emo_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_0br",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_a"
+          ],
+          "initial": "emo_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_1",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_b"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_b"
+          ],
+          "initial": "emo_b"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_1r",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_b"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_b"
+          ],
+          "initial": "emo_b"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_1b",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_b"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_b"
+          ],
+          "initial": "emo_b"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_1br",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_b"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_b"
+          ],
+          "initial": "emo_b"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_t0",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_a"
+          ],
+          "initial": "emo_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_tr",
+      "skins": [
+        "default",
+        "cloth_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_tb",
+      "skins": [
+        "default",
+        "cloth_a",
+        "emo_b"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "emo_b"
+          ],
+          "initial": "emo_b"
+        }
+      ]
+    },
+    {
+      "name": "damage_press_tbr",
+      "skins": [
+        "default",
+        "cloth_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        }
+      ]
+    },
+    {
+      "name": "damage_ft_press_0",
+      "skins": [
+        "default",
+        "cloth_t"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_t"
+          ],
+          "initial": "cloth_t"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/cuts_layegg.atlas.dat/cuts_layegg": [
+    {
+      "name": "cuts_layegg",
+      "skins": [
+        "default",
+        "cloth_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_backinj.atlas.dat/damage_backinj": [
+    {
+      "name": "damage_backinj0",
+      "skins": [
+        "default",
+        "cloth_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "tentacle/pentapod"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "damage_backinj1",
+      "skins": [
+        "default",
+        "cloth_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "tentacle/pentapod"
+          ],
+          "initial": ""
+        }
+      ]
+    },
+    {
+      "name": "damage_backinj2",
+      "skins": [
+        "default",
+        "cloth_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "cloth_b",
+            "cloth_a"
+          ],
+          "initial": "cloth_a"
+        },
+        {
+          "id": "1",
+          "names": [
+            "tentacle/pentapod"
+          ],
+          "initial": ""
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_smt.atlas.dat/damage_smt": [
+    {
+      "name": "torture_smt_0",
+      "skins": [
+        "default",
+        "torned/normal",
+        "tentacle/behind",
+        "tentacle/front",
+        "bust/bustA"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "torned/torned",
+            "torned/normal"
+          ],
+          "initial": "torned/normal"
+        },
+        {
+          "id": "1",
+          "names": [
+            "tentacle/behind"
+          ],
+          "initial": "tentacle/behind"
+        },
+        {
+          "id": "2",
+          "names": [
+            "tentacle/front"
+          ],
+          "initial": "tentacle/front"
+        },
+        {
+          "id": "3",
+          "names": [
+            "bust/bustA",
+            "bust/bustT"
+          ],
+          "initial": "bust/bustA"
+        }
+      ]
+    },
+    {
+      "name": "torture_smt_1",
+      "skins": [
+        "default",
+        "torned/normal",
+        "tentacle/behind",
+        "tentacle/front",
+        "bust/bustT"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "torned/torned",
+            "torned/normal"
+          ],
+          "initial": "torned/normal"
+        },
+        {
+          "id": "1",
+          "names": [
+            "tentacle/behind"
+          ],
+          "initial": "tentacle/behind"
+        },
+        {
+          "id": "2",
+          "names": [
+            "tentacle/front"
+          ],
+          "initial": "tentacle/front"
+        },
+        {
+          "id": "3",
+          "names": [
+            "bust/bustT"
+          ],
+          "initial": "bust/bustT"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/cuts_iyapan.atlas.dat/cuts_iyapan": [
+    {
+      "name": "cuts_iyapan_s0",
+      "skins": [
+        "default",
+        "f/f1",
+        "main/body_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f1"
+          ],
+          "initial": "f/f1"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_a"
+          ],
+          "initial": "main/body_a"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_s1",
+      "skins": [
+        "default",
+        "f/f1",
+        "main/body_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f1"
+          ],
+          "initial": "f/f1"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_a"
+          ],
+          "initial": "main/body_a"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_r0",
+      "skins": [
+        "default",
+        "f/f1",
+        "main/body_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f1"
+          ],
+          "initial": "f/f1"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_a"
+          ],
+          "initial": "main/body_a"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_r1",
+      "skins": [
+        "default",
+        "f/f1",
+        "main/body_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f1"
+          ],
+          "initial": "f/f1"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_a"
+          ],
+          "initial": "main/body_a"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_r1_2",
+      "skins": [
+        "default",
+        "f/f1",
+        "main/body_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f1"
+          ],
+          "initial": "f/f1"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_a"
+          ],
+          "initial": "main/body_a"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_s2",
+      "skins": [
+        "default",
+        "f/f1",
+        "main/body_a"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f1"
+          ],
+          "initial": "f/f1"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_a"
+          ],
+          "initial": "main/body_a"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_s3",
+      "skins": [
+        "default",
+        "f/f2",
+        "main/body_b"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f2"
+          ],
+          "initial": "f/f2"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_b"
+          ],
+          "initial": "main/body_b"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_h1",
+      "skins": [
+        "default",
+        "f/f2",
+        "main/body_b",
+        "man/arm"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f2"
+          ],
+          "initial": "f/f2"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_b"
+          ],
+          "initial": "main/body_b"
+        },
+        {
+          "id": "2",
+          "names": [
+            "man/arm"
+          ],
+          "initial": "man/arm"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_h2",
+      "skins": [
+        "default",
+        "f/f2",
+        "main/body_b",
+        "man/arm"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f2"
+          ],
+          "initial": "f/f2"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_b"
+          ],
+          "initial": "main/body_b"
+        },
+        {
+          "id": "2",
+          "names": [
+            "man/arm"
+          ],
+          "initial": "man/arm"
+        }
+      ]
+    },
+    {
+      "name": "cuts_iyapan_h3",
+      "skins": [
+        "default",
+        "f/f2",
+        "main/body_b",
+        "man/arm"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "f/f2"
+          ],
+          "initial": "f/f2"
+        },
+        {
+          "id": "1",
+          "names": [
+            "main/body_b"
+          ],
+          "initial": "main/body_b"
+        },
+        {
+          "id": "2",
+          "names": [
+            "man/arm"
+          ],
+          "initial": "man/arm"
+        }
+      ]
+    }
+  ],
+  "SpineAnim/damage_backvore.atlas.dat/damage_backvore": [
+    {
+      "name": "damage_backvore",
+      "skins": [
+        "default",
+        "marunomi"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "marunomi"
+          ],
+          "initial": "marunomi"
+        }
+      ]
+    },
+    {
+      "name": "damage_backvore_vorecomp",
+      "skins": [
+        "default",
+        "marunomi"
+      ],
+      "groups": [
+        {
+          "id": "0",
+          "names": [
+            "marunomi"
+          ],
+          "initial": "marunomi"
+        }
+      ]
+    }
+  ]
+}

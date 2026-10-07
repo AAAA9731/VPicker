@@ -9,8 +9,10 @@ import { homedir } from 'node:os'
 import { basename, dirname, extname, join, normalize, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getAsset, isSea } from 'node:sea'
+import { PXL_FILES as WANTED, SKIP_GAME_DIRS as SKIP_DIR, spineFileKey } from '../src/game-index.js'
+import { createVideoService } from './video.js'
 
-const APP = 'VPicker PXL 图像提取工具'
+const APP = 'VPicker 游戏素材提取工具'
 const START_PORT = 5173
 const IDLE_EXIT_MS = 5000 // 最后一个页面断开后，等待多久退出（刷新页面不会误杀）
 const NEVER_OPENED_MS = 120000 // 启动后一直没有页面连接则退出
@@ -135,8 +137,6 @@ if (canSelfUpdate) {
 }
 
 // 与 src/loader.js 的 WANTED / SKIP_DIR 保持一致
-const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
-const SKIP_DIR = new Set(['Managed', 'MonoBleedingEdge', 'BepInEx', 'Resources', 'Plugins', 'Il2CppData'])
 /** 当前选定目录里的文件索引：文件名 → 完整路径 */
 let gameIndex = new Map()
 /** SimplePatch 的自定义图片文件夹（StreamingAssets/SimplePatch_pic）里的 PNG：相对路径 → 完整路径 */
@@ -171,6 +171,7 @@ function scanDir(dir, out = new Map(), depth = 0, pics = { found: false, files: 
     } else if (picRel !== null) {
       if (/\.png$/i.test(name)) pics.files.set(picRel + name, p)
     } else if (WANTED.test(name)) out.set(name, p)
+    else if (spineFileKey(p)) out.set(spineFileKey(p), p)
   }
   return out
 }
@@ -236,13 +237,18 @@ const sendJson = (res, code, obj) => {
   res.end(JSON.stringify(obj))
 }
 
+const videos = createVideoService()
 const server = http.createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://localhost')
-  if (url.pathname === '/__config' || url.pathname.startsWith('/__dir/') || url.pathname.startsWith('/__update/') || url.pathname.startsWith('/__pic/')) {
+  if (url.pathname === '/__config' || url.pathname.startsWith('/__dir/') || url.pathname.startsWith('/__update/') || url.pathname.startsWith('/__pic/') || url.pathname.startsWith('/__video/')) {
     // 这些接口会读本机文件，只允许本页面自己（同源）访问
     const origin = req.headers.origin
-    if (origin && new URL(origin).host !== req.headers.host) return void res.writeHead(403).end()
+    if (origin) {
+      try { if (new URL(origin).host !== req.headers.host) return void res.writeHead(403).end() }
+      catch { return void res.writeHead(403).end() }
+    }
   }
+  if (url.pathname.startsWith('/__video/')) return void videos.handle(req, res, url)
   if (url.pathname === '/__config') {
     return sendJson(res, 200, { dir: cliDir ?? loadConfig().dir ?? '', fromCli: !!cliDir, version: APP_VERSION })
   }
@@ -398,12 +404,13 @@ const server = http.createServer((req, res) => {
 })
 
 let exiting = false
-function shutdown(reason) {
+async function shutdown(reason) {
   if (exiting) return
   exiting = true
   log('退出', reason, C.cyan)
   for (const c of clients) c.end()
   server.close()
+  await videos.close()
   setTimeout(() => process.exit(0), 600)
 }
 process.on('SIGINT', () => shutdown('收到 Ctrl+C'))

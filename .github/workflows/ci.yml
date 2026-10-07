@@ -48,7 +48,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $p = Start-Process -FilePath ${{ matrix.bin }} -ArgumentList '--no-open','--port=5199' -PassThru -RedirectStandardOutput exe.log
+          $p = Start-Process -FilePath ${{ matrix.bin }} -ArgumentList '--no-open','--port=5199' -WindowStyle Hidden -PassThru -RedirectStandardOutput exe.log
           try {
             $ok = $false
             foreach ($i in 1..20) {
@@ -61,6 +61,8 @@ jobs:
             if (-not $ok) { throw '网页没有正常返回' }
             $w = Invoke-WebRequest -UseBasicParsing http://localhost:5199/wasm/texture2ddecoder.wasm
             if ($w.StatusCode -ne 200) { throw 'wasm 资源缺失' }
+            $video = Invoke-RestMethod http://localhost:5199/__video/capabilities
+            if (-not $video.available -or $video.formats.Count -ne 2) { throw '内置 FFmpeg 不可用' }
             Write-Host '冒烟测试通过'
           } finally {
             Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
@@ -78,6 +80,7 @@ jobs:
             if curl -fs http://localhost:5199/ | grep -q VPicker; then ok=1; break; fi
           done
           curl -fs -o /dev/null http://localhost:5199/wasm/texture2ddecoder.wasm || ok=0
+          curl -fs http://localhost:5199/__video/capabilities | grep -q '"available":true' || ok=0
           kill $PID 2>/dev/null || true
           cat exe.log
           [ "$ok" = 1 ] || { echo '网页没有正常返回'; exit 1; }

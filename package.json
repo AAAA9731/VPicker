@@ -1,7 +1,7 @@
 {
   "name": "vpicker",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@napi-rs/canvas": "^1.0.10",
+    "ffmpeg-static": "5.3.0",
     "postject": "^1.0.0-alpha.6",
     "vite": "^6.0.0",
     "vitest": "^3.0.0"
@@ -23,5 +24,5 @@
     "texture2ddecoder-wasm": "^1.2.5"
   },
   "license": "MIT",
-  "description": "提取游戏中所有 PXL 图像（立绘、事件 CG、UI、敌人等）的浏览器工具"
+  "description": "本地提取游戏 PXL 图像，并将 Spine 动作渲染成视频"
 }

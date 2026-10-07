@@ -1,5 +1,6 @@
 // 把 texture2ddecoder-wasm 的 wasm 文件复制到 public/wasm，供浏览器端按需加载。
 import { cpSync, mkdirSync, existsSync } from 'node:fs'
+import { copyLicenses } from './copy-licenses.mjs'
 
 const src = 'node_modules/texture2ddecoder-wasm/wasm'
 if (!existsSync(src)) {
@@ -8,4 +9,5 @@ if (!existsSync(src)) {
 }
 mkdirSync('public/wasm', { recursive: true })
 cpSync(src, 'public/wasm', { recursive: true })
+copyLicenses()
 console.log('已复制 wasm 到 public/wasm')

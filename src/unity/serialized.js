@@ -45,7 +45,7 @@ export function readSerialized(buf) {
     r.i64() // unknown
   }
   r.le = endian === 0
-  if (version >= 7) r.cstring() // unity version
+  const unityVersion = version >= 7 ? r.cstring() : ''
   if (version >= 8) r.i32() // target platform
   const enableTree = version >= 13 ? r.bool() : false
   const typeCount = r.i32()
@@ -70,7 +70,7 @@ export function readSerialized(buf) {
     if (version === 15 || version === 16) r.u8()
     objects.push({ pathId, classId, start: start + dataOffset, size })
   }
-  return { objects, data: buf, le: r.le }
+  return { objects, data: buf, le: r.le, unityVersion }
 }
 function resolveStream(nodes, path, off, size) {
   const base = path.slice(path.lastIndexOf('/') + 1)
@@ -114,7 +114,8 @@ export function readBundleAssets(file) {
         r.bool()
         r.bool() // readable, preprocessed, ignoreMipmapLimit, streamingMipmaps
         r.align(4)
-        r.unityString() // mipmap limit group name
+        // Unity 2021 bundles do not include the group name added in 2022.
+        if (parseInt(sf.unityVersion, 10) >= 2022) r.unityString()
         r.i32() // streaming mipmaps priority
         r.i32() // image count
         r.i32() // texture dimension

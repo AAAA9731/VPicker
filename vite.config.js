@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import { createReadStream, existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { PXL_FILES, spineFileKey } from './src/game-index.js'
 /**
  * 仅开发用：设置环境变量 AIC_SA_DIR（StreamingAssets 路径）后，
  * 访问 /?auto=1 即可免选择文件夹地加载，方便自动化验证。构建产物里不含此逻辑。
@@ -16,7 +17,8 @@ function devGameFiles() {
         for (const f of readdirSync(d)) {
           const p = join(d, f)
           if (statSync(p).isDirectory()) walk(p, out)
-          else if (/^(.+\.pxls\.(bytes\.texture_\d+\.)?dat|__vp_person\.dat)$/.test(f)) out[f] = p
+          else if (PXL_FILES.test(f)) out[f] = p
+          else if (spineFileKey(p)) out[spineFileKey(p)] = p
         }
         return out
       }

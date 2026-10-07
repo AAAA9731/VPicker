@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <h1>VPicker <small>PXL 图像提取工具</small></h1>
+    <h1>VPicker <small>游戏素材提取工具</small></h1>
     <button id="pick" type="button">选择文件夹…</button>
     <input id="pick-fallback" type="file" webkitdirectory multiple hidden />
     <span id="dir-row" hidden>
@@ -20,9 +20,10 @@
   </header>
 
   <nav id="modes" aria-label="内容类型" hidden>
-    <button id="mode-person" type="button" class="mode" data-mode="person">立绘</button>
+    <button id="mode-person" type="button" class="mode" data-mode="person" aria-selected="true">立绘</button>
     <button id="mode-other" type="button" class="mode" data-mode="other">非立绘图片</button>
     <button id="mode-custom" type="button" class="mode" data-mode="custom" title="检测到 StreamingAssets/SimplePatch_pic（SimplePatch 的 PicLoad 补丁）时出现" hidden>自定义图片</button>
+    <button id="mode-spine" type="button" class="mode" data-mode="spine">Spine动画提取</button>
   </nav>
 
   <nav id="tabs" aria-label="角色"></nav>
@@ -115,6 +116,93 @@
       <div id="custom-msg"></div>
     </section>
   </main>
+
+  <main id="spine" hidden>
+    <div class="spine-heading">
+      <div>
+        <h2 id="spine-title" tabindex="-1">Spine动画提取</h2>
+        <p>仅供二次创作与学习使用，输出内容仅限视频。</p>
+      </div>
+      <button id="spine-read-notice" type="button">查看使用须知</button>
+    </div>
+    <p id="spine-state" class="spine-state" role="status">确认使用须知后读取动画。</p>
+    <div class="spine-workspace">
+      <section class="col spine-library" aria-labelledby="spine-library-title">
+        <h3 id="spine-library-title">动画资源</h3>
+        <label class="spine-field">资源分类
+          <select id="spine-group"><option value="">全部动画</option><option>SpineAnim</option><option>SpineAnimEn</option><option>SpineAnimEv</option><option>Fatal</option></select>
+        </label>
+        <label class="spine-field">搜索资源<input id="spine-search" type="search" placeholder="按名称筛选" /></label>
+        <div id="spine-list" class="spine-list" aria-label="动画资源列表"></div>
+      </section>
+      <section class="col spine-viewer" aria-label="动画预览">
+        <div id="spine-preview" class="spine-preview">
+          <canvas id="spine-canvas" width="960" height="540" hidden aria-label="动画画面"></canvas>
+          <span id="spine-placeholder">选择动画资源后在这里预览</span>
+        </div>
+        <div class="spine-playback">
+          <button id="spine-play" type="button" disabled>播放</button>
+          <input id="spine-seek" type="range" min="0" max="1" step="0.001" value="0" aria-label="动画播放进度" disabled />
+          <span id="spine-time">0.00 / 0.00 秒</span>
+        </div>
+        <label class="spine-field">动画名称
+          <select id="spine-animation" disabled><option>请先选择动画资源</option></select>
+        </label>
+        <label class="spine-field">皮肤组合<select id="spine-skin" disabled></select></label>
+        <details id="spine-skin-options" class="spine-skin-options" hidden><summary>调整组合部件</summary><div id="spine-skin-parts"></div></details>
+        <p id="spine-skin-hint" class="spine-skin-hint"></p>
+        <div class="spine-view-actions"><button id="spine-fit" type="button" disabled>画面复位</button><span>滚轮缩放 · 拖动平移</span></div>
+      </section>
+      <section class="col spine-export" aria-labelledby="spine-export-title">
+        <h3 id="spine-export-title">视频导出</h3>
+        <label class="spine-field">视频格式
+          <select id="spine-format"><option value="webm">WebM 视频</option><option value="mp4">MP4 视频</option></select>
+        </label>
+        <label class="spine-field">分辨率
+          <select id="spine-resolution"><option value="1280x720">1280 × 720</option><option value="1920x1080" selected>1920 × 1080</option><option value="2560x1440">2560 × 1440</option></select>
+        </label>
+        <label class="spine-field">帧率
+          <select id="spine-fps"><option value="24">24 帧 / 秒</option><option value="30" selected>30 帧 / 秒</option><option value="60">60 帧 / 秒</option></select>
+        </label>
+        <label class="spine-field">播放速率
+          <input id="spine-speed" type="number" min="0.1" max="10" step="0.1" value="1" />
+        </label>
+        <label class="spine-field">起始动画时间（秒）
+          <input id="spine-start" type="number" min="0" max="3600" step="0.01" value="0" />
+        </label>
+        <label class="spine-field">视频时长（秒）
+          <input id="spine-duration" type="number" min="0.01" max="120" step="0.01" value="5" />
+        </label>
+        <label class="flag spine-loop"><input id="spine-loop" type="checkbox" checked />循环播放（关闭后停在末帧）</label>
+        <label class="spine-field">视频背景
+          <input id="spine-background" type="color" value="#202020" />
+        </label>
+        <div class="spine-export-bottom">
+          <p id="spine-export-summary">1920 × 1080 · 30 帧 / 秒 · WebM</p>
+          <button id="spine-export-video" type="button" disabled>导出视频</button>
+          <button id="spine-cancel" type="button" hidden>取消导出</button>
+          <progress id="spine-export-progress" max="1" value="0" hidden></progress>
+          <a id="spine-download" hidden>保存视频</a>
+          <p id="spine-export-hint" class="spine-export-hint">正在检查本地视频服务。</p>
+        </div>
+        <p class="spine-output-rule">本功能仅导出视频，不提供 Spine 工程、骨骼数据或图集文件的下载。</p>
+        <p class="spine-output-rule"><a href="./licenses/index.html" target="_blank" rel="noopener noreferrer">组件许可</a></p>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="spine-notice" aria-labelledby="spine-notice-title" aria-describedby="spine-notice-purpose spine-notice-nsfw spine-notice-output">
+    <h3 id="spine-notice-title" tabindex="-1" autofocus>Spine动画提取 · 使用须知</h3>
+    <div class="spine-notice-body">
+      <p id="spine-notice-purpose"><strong>仅作为二次创作与学习使用。</strong><br />《Alice in Cradle》原创游戏素材的版权归 NanameHacha 所有。发布二创作品时，请显著注明游戏名称、来源与作者，内容不得用于营利。第三方素材须遵守其创作者的条款。</p>
+      <p id="spine-notice-nsfw"><strong>本页资源大多含 NSFW / 成人内容。</strong><br />不同动作、皮肤及部件组合可能改变内容，本工具不逐项分类或过滤。请在合适的环境中使用，并自行审查预览、导出及发布的内容。</p>
+      <p id="spine-notice-output"><strong>本功能只能提取成视频，不提供 Spine 工程。</strong><br />不导出 .spine 工程、JSON / SKEL 骨骼数据、atlas 图集描述或贴图包。</p>
+      <p>不得冒用原作者名义上传游戏素材，也不得用于宣扬恐怖主义、法西斯主义或邪教等内容。同人游戏用途须另行取得许可。完整约定请阅读 <a href="https://docs.nanamehacha.dev/en/alice_in_cradle/license/the_use_of_game_assets" target="_blank" rel="noopener noreferrer">官方素材使用协议</a>。</p>
+    </div>
+    <div class="spine-notice-footer">
+      <button id="spine-notice-confirm" type="button" disabled>阅读中（3 秒）</button>
+    </div>
+  </dialog>
 
   <dialog id="update-dialog">
     <h3>发现新版本 <span id="update-ver"></span></h3>

@@ -4,8 +4,7 @@ import { readPxl } from './pxl/reader'
 import { buildPerson } from './pxl/person'
 import { guessPersonsFromFiles, parsePersonDef } from './persons'
 import { AtlasStore } from './render'
-const WANTED = /^(.+\.pxls\.dat|.+\.pxls\.bytes\.texture_\d+\.dat|__vp_person\.dat)$/
-const SKIP_DIR = new Set(['Managed', 'MonoBleedingEdge', 'BepInEx', 'Resources', 'Plugins', 'Il2CppData'])
+import { PXL_FILES as WANTED, SKIP_GAME_DIRS as SKIP_DIR, SPINE_DIRS, spineFileKey } from './game-index'
 /** SimplePatch 的 PicLoad 补丁读取自定义 PNG 的文件夹（StreamingAssets 下） */
 const PIC_DIR = 'SimplePatch_pic'
 const isPng = (n) => /\.png$/i.test(n)
@@ -20,6 +19,7 @@ export class GameFiles {
   defs = []
   /** 非立绘的图片包（事件 CG、UI、小游戏素材等），key 即包名 */
   others = []
+  spineBundles = []
   has(name) {
     return this.files.has(name)
   }
@@ -31,6 +31,8 @@ export class GameFiles {
   async addFileList(list) {
     for (const f of Array.from(list)) {
       if (WANTED.test(f.name)) this.files.set(f.name, async () => f)
+      const spineKey = spineFileKey(f.webkitRelativePath || f.name)
+      if (spineKey) this.files.set(spineKey, async () => f)
       const segs = (f.webkitRelativePath || '').split('/')
       const at = segs.indexOf(PIC_DIR)
       if (at >= 0 && at < segs.length - 1) {
@@ -40,7 +42,8 @@ export class GameFiles {
     }
   }
   /** picRel：位于 SimplePatch_pic 内时，当前目录相对它的路径（根为 ''）；否则为 null。 */
-  async addDirHandle(dir, depth = 0, picRel = null) {
+  async addDirHandle(dir, depth = 0, picRel = null, spineGroup = null) {
+    if (SPINE_DIRS.has(dir.name)) spineGroup = dir.name
     if (picRel === null && dir.name === PIC_DIR) {
       this.picDir = true
       picRel = ''
@@ -52,25 +55,30 @@ export class GameFiles {
         } else if (name === PIC_DIR) {
           this.picDir = true
           await this.addDirHandle(h, depth + 1, '')
-        } else if (depth < 8 && !SKIP_DIR.has(name)) await this.addDirHandle(h, depth + 1)
+        } else if (depth < 8 && !SKIP_DIR.has(name)) await this.addDirHandle(h, depth + 1, null, spineGroup)
       } else if (picRel !== null) {
         if (isPng(name)) this.pics.set(picRel + name, () => h.getFile())
       } else if (WANTED.test(name)) {
         this.files.set(name, () => h.getFile())
+      } else if (spineGroup && name.endsWith('.dat')) {
+        this.files.set(`${spineGroup}/${name}`, () => h.getFile())
       }
     }
   }
   /** picRel 同 addDirHandle；entry 是 SimplePatch_pic 自身时按根处理。 */
-  async addEntry(entry, depth = 0, picRel = null) {
+  async addEntry(entry, depth = 0, picRel = null, spineGroup = null) {
     if (entry.isFile) {
       if (picRel !== null) {
         if (isPng(entry.name)) this.pics.set(picRel + entry.name, () => new Promise((res, rej) => entry.file(res, rej)))
       } else if (WANTED.test(entry.name)) {
         this.files.set(entry.name, () => new Promise((res, rej) => entry.file(res, rej)))
+      } else if (spineGroup && entry.name.endsWith('.dat')) {
+        this.files.set(`${spineGroup}/${entry.name}`, () => new Promise((res, rej) => entry.file(res, rej)))
       }
       return
     }
     if (!entry.isDirectory || depth >= 8) return
+    if (SPINE_DIRS.has(entry.name)) spineGroup = entry.name
     let childRel = null
     if (picRel !== null) childRel = picRel + entry.name + '/'
     else if (entry.name === PIC_DIR) {
@@ -81,11 +89,12 @@ export class GameFiles {
     for (;;) {
       const batch = await new Promise((res, rej) => reader.readEntries(res, rej))
       if (!batch.length) break
-      for (const e of batch) await this.addEntry(e, depth + 1, childRel)
+      for (const e of batch) await this.addEntry(e, depth + 1, childRel, spineGroup)
     }
   }
   /** 选择完成后调用：解析角色表。 */
   async finish() {
+    this.spineBundles = [...this.files.keys()].filter((n) => spineFileKey(n) && n.endsWith('.atlas.dat')).sort()
     const pxlNames = [...this.files.keys()].filter((n) => n.endsWith('.pxls.dat')).map((n) => n.slice(0, -'.pxls.dat'.length))
     let defs = []
     if (this.files.has('__vp_person.dat')) {
